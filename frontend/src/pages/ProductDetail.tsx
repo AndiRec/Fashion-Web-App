@@ -1,0 +1,160 @@
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useProduct } from "@/hooks/useProducts";
+import { useAddToCart } from "@/hooks/useCart";
+import { useToggleWishlist, useWishlist } from "@/hooks/useWishlist";
+import { useAuthStore } from "@/store/auth";
+import { useToastStore } from "@/store/toast";
+import { useUiStore } from "@/store/ui";
+import { getErrorMessage } from "@/lib/api";
+import { categoryLabel } from "@/lib/format";
+import { PriceTag } from "@/components/product/PriceTag";
+import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
+import { HeartIcon } from "@/components/icons";
+import clsx from "clsx";
+
+export function ProductDetail() {
+  const { id } = useParams();
+  const { data: product, isLoading } = useProduct(id);
+  const [activeImage, setActiveImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+
+  const token = useAuthStore((s) => s.token);
+  const addToCart = useAddToCart();
+  const toggleWishlist = useToggleWishlist();
+  const { data: wishlist } = useWishlist();
+  const push = useToastStore((s) => s.push);
+  const openCart = useUiStore((s) => s.openCart);
+
+  if (isLoading) return <Spinner className="py-32" />;
+  if (!product) return <div className="container-boutique py-32 text-center text-ink-soft">Product not found.</div>;
+
+  const isWishlisted = wishlist?.some((item) => item.product.id === product.id) ?? false;
+  const variant = product.variants.find((v) => v.size === selectedSize);
+  const outOfStock = (product.total_stock ?? 0) <= 0;
+
+  function handleAddToCart() {
+    if (!token) {
+      push("Please sign in to add items to your bag.", "error");
+      return;
+    }
+    if (!selectedSize) {
+      push("Please select a size.", "error");
+      return;
+    }
+    addToCart.mutate(
+      { productId: product!.id, size: selectedSize },
+      {
+        onSuccess: () => {
+          push("Added to your bag.");
+          openCart();
+        },
+        onError: (err) => push(getErrorMessage(err), "error"),
+      },
+    );
+  }
+
+  function handleWishlist() {
+    if (!token) {
+      push("Please sign in to save favorites.", "error");
+      return;
+    }
+    toggleWishlist.mutate(product!.id, { onError: (err) => push(getErrorMessage(err), "error") });
+  }
+
+  return (
+    <div className="container-boutique py-12">
+      <nav className="mb-8 text-xs text-ink-soft">
+        <Link to="/shop" className="hover:text-ink">
+          Shop
+        </Link>
+        <span className="mx-2">/</span>
+        <span>{product.name}</span>
+      </nav>
+
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+        <div>
+          <div className="aspect-[3/4] w-full overflow-hidden bg-mist">
+            {product.images[activeImage] ? (
+              <img src={product.images[activeImage].url} alt={product.name} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full items-center justify-center text-ink-soft/40">Aria Fashion</div>
+            )}
+          </div>
+          {product.images.length > 1 ? (
+            <div className="mt-3 flex gap-3">
+              {product.images.map((img, i) => (
+                <button
+                  key={img.id}
+                  onClick={() => setActiveImage(i)}
+                  className={clsx("h-20 w-16 overflow-hidden border", i === activeImage ? "border-ink" : "border-transparent")}
+                >
+                  <img src={img.url} alt="" className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="lg:pt-4">
+          <p className="eyebrow mb-2">{categoryLabel(product.category)}</p>
+          <h1 className="mb-4 text-3xl">{product.name}</h1>
+          <PriceTag product={product} className="mb-6 text-lg" />
+
+          <p className="mb-8 text-sm leading-relaxed text-ink-soft">{product.description}</p>
+
+          <div className="mb-8">
+            <h3 className="eyebrow mb-3">Size</h3>
+            <div className="flex flex-wrap gap-2">
+              {product.variants.map((v) => (
+                <button
+                  key={v.id}
+                  disabled={v.stock < 1}
+                  onClick={() => setSelectedSize(v.size)}
+                  className={clsx(
+                    "flex h-11 w-11 items-center justify-center border text-sm transition-colors",
+                    v.stock < 1
+                      ? "border-line text-ink-soft/30 line-through"
+                      : selectedSize === v.size
+                        ? "border-ink bg-ink text-cream"
+                        : "border-line text-ink hover:border-ink",
+                  )}
+                >
+                  {v.size}
+                </button>
+              ))}
+            </div>
+            {variant && variant.stock <= 5 && variant.stock > 0 ? (
+              <p className="mt-2 text-xs text-rust">Only {variant.stock} left in size {variant.size}</p>
+            ) : null}
+          </div>
+
+          <div className="flex gap-3">
+            <Button size="lg" className="flex-1" onClick={handleAddToCart} loading={addToCart.isPending} disabled={outOfStock}>
+              {outOfStock ? "Sold Out" : "Add to Bag"}
+            </Button>
+            <button
+              onClick={handleWishlist}
+              aria-label="Toggle wishlist"
+              className="flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center border border-ink"
+            >
+              <HeartIcon filled={isWishlisted} className={isWishlisted ? "text-rust" : ""} />
+            </button>
+          </div>
+
+          <dl className="mt-10 space-y-2 border-t border-line pt-6 text-xs text-ink-soft">
+            <div className="flex justify-between">
+              <dt>Color</dt>
+              <dd className="capitalize text-ink">{product.color}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt>Category</dt>
+              <dd className="text-ink">{categoryLabel(product.category)}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  );
+}
