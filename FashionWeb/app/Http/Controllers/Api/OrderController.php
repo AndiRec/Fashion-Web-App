@@ -11,10 +11,23 @@ class OrderController extends Controller
 {
     public function adminIndex(Request $request)
     {
-        $query = Order::with(['user', 'items.product', 'address']);
+        $query = Order::with(['user', 'items.product.productImages', 'items.product.variants', 'address']);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->string('search');
+
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('phone', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            });
         }
 
         return OrderResource::collection($query->latest()->paginate($request->integer('per_page', 20)));
@@ -28,14 +41,14 @@ class OrderController extends Controller
 
         $order->update(['status' => $request->status]);
 
-        return new OrderResource($order->load(['user', 'items.product', 'address']));
+        return new OrderResource($order->load(['user', 'items.product.productImages', 'items.product.variants', 'address']));
     }
 
     public function myOrders(Request $request)
     {
         $orders = $request->user()
             ->orders()
-            ->with(['items.product', 'address'])
+            ->with(['items.product.productImages', 'items.product.variants', 'address'])
             ->latest()
             ->get();
 
@@ -46,7 +59,7 @@ class OrderController extends Controller
     {
         abort_unless($order->user_id === $request->user()->id || $request->user()->hasRole('admin'), 403);
 
-        return new OrderResource($order->load(['items.product', 'address', 'user']));
+        return new OrderResource($order->load(['items.product.productImages', 'items.product.variants', 'address', 'user']));
     }
 
     public function cancel(Request $request, Order $order)
@@ -66,6 +79,6 @@ class OrderController extends Controller
 
         $order->update(['status' => 'canceled']);
 
-        return new OrderResource($order->load(['items.product', 'address']));
+        return new OrderResource($order->load(['items.product.productImages', 'items.product.variants', 'address']));
     }
 }

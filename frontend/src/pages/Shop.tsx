@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useProducts, type ProductFilters as Filters } from "@/hooks/useProducts";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { Pagination } from "@/components/ui/Pagination";
-import { Spinner } from "@/components/ui/Spinner";
+import { ProductGridSkeleton } from "@/components/ui/Skeleton";
 import { Select } from "@/components/ui/Field";
+import { categoryLabel } from "@/lib/format";
+import { XIcon } from "@/components/icons";
 
 function filtersFromParams(params: URLSearchParams): Filters {
   return {
@@ -21,20 +23,43 @@ function filtersFromParams(params: URLSearchParams): Filters {
   };
 }
 
+function filtersToParams(filters: Filters): URLSearchParams {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") params.set(key, String(value === true ? 1 : value));
+  });
+  return params;
+}
+
 export function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFiltersState] = useState<Filters>(() => filtersFromParams(searchParams));
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  // Keep local filter state in sync when the URL changes from elsewhere
+  // (header search, nav links like "Sale", browser back/forward).
+  const searchParamsKey = searchParams.toString();
+  useEffect(() => {
+    setFiltersState(filtersFromParams(searchParams));
+  }, [searchParamsKey]);
+
   const { data, isLoading, isFetching } = useProducts(filters);
 
   function updateFilters(next: Filters) {
     setFiltersState(next);
-    const params = new URLSearchParams();
-    Object.entries(next).forEach(([key, value]) => {
-      if (value !== undefined && value !== "") params.set(key, String(value === true ? 1 : value));
-    });
-    setSearchParams(params);
+    setSearchParams(filtersToParams(next));
+  }
+
+  const activeChips: { key: keyof Filters; label: string }[] = [
+    ...(filters.search ? [{ key: "search" as const, label: `"${filters.search}"` }] : []),
+    ...(filters.category ? [{ key: "category" as const, label: categoryLabel(filters.category) }] : []),
+    ...(filters.size ? [{ key: "size" as const, label: `Size ${filters.size}` }] : []),
+    ...(filters.on_sale ? [{ key: "on_sale" as const, label: "On Sale" }] : []),
+    ...(filters.new_collection ? [{ key: "new_collection" as const, label: "New Collection" }] : []),
+  ];
+
+  function removeChip(key: keyof Filters) {
+    updateFilters({ ...filters, [key]: undefined, page: 1 });
   }
 
   return (
@@ -62,6 +87,27 @@ export function Shop() {
         </div>
       </div>
 
+      {activeChips.length > 0 ? (
+        <div className="mb-8 flex flex-wrap items-center gap-2">
+          {activeChips.map((chip) => (
+            <button
+              key={chip.key}
+              onClick={() => removeChip(chip.key)}
+              className="flex items-center gap-1.5 border border-line bg-cream-soft px-3 py-1.5 text-xs text-ink-soft hover:border-ink hover:text-ink"
+            >
+              {chip.label}
+              <XIcon width={11} height={11} />
+            </button>
+          ))}
+          <button
+            onClick={() => updateFilters({ sort: filters.sort })}
+            className="link-underline text-xs uppercase tracking-wider text-ink-soft"
+          >
+            Clear All
+          </button>
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[220px_1fr]">
         <aside className="hidden lg:block">
           <ProductFilters filters={filters} onChange={updateFilters} />
@@ -69,7 +115,7 @@ export function Shop() {
 
         <div>
           {isLoading ? (
-            <Spinner />
+            <ProductGridSkeleton />
           ) : (
             <>
               <p className="mb-6 text-xs text-ink-soft">{data?.meta.total ?? 0} products</p>

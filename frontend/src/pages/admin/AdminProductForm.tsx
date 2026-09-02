@@ -1,5 +1,5 @@
-import { type FormEvent, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { type ChangeEvent, type DragEvent, type FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMeta } from "@/hooks/useMeta";
 import { useCreateProduct, useDeleteProductImage, useProduct, useUpdateProduct } from "@/hooks/useProducts";
 import { useToastStore } from "@/store/toast";
@@ -7,9 +7,18 @@ import { getErrorMessage } from "@/lib/api";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Input, Select, Textarea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Spinner } from "@/components/ui/Spinner";
 import { categoryLabel } from "@/lib/format";
-import { TrashIcon } from "@/components/icons";
+import { TrashIcon, UploadIcon } from "@/components/icons";
+import type { ProductImage } from "@/lib/types";
+
+const SectionCard = ({ title, children }: { title: string; children: ReactNode }) => (
+  <div className="border border-line bg-cream p-6">
+    <h2 className="mb-5 font-display text-lg text-ink">{title}</h2>
+    {children}
+  </div>
+);
 
 export function AdminProductForm() {
   const { id } = useParams();
@@ -34,7 +43,9 @@ export function AdminProductForm() {
     new_collection: false,
   });
   const [sizes, setSizes] = useState<Record<string, string>>({});
-  const [images, setImages] = useState<FileList | null>(null);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [pendingImageDelete, setPendingImageDelete] = useState<ProductImage | null>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -59,7 +70,25 @@ export function AdminProductForm() {
     }
   }, [meta, isEdit]);
 
-  if (isEdit && isLoading) return <Spinner className="py-32" />;
+  const previewUrls = useMemo(() => newFiles.map((file) => URL.createObjectURL(file)), [newFiles]);
+  useEffect(() => () => previewUrls.forEach((url) => URL.revokeObjectURL(url)), [previewUrls]);
+
+  if (isEdit && isLoading) return <Spinner className="min-h-screen" />;
+
+  function addFiles(fileList: FileList | null) {
+    if (!fileList) return;
+    setNewFiles((prev) => [...prev, ...Array.from(fileList)]);
+  }
+
+  function removeNewFile(index: number) {
+    setNewFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function handleDrop(e: DragEvent<HTMLLabelElement>) {
+    e.preventDefault();
+    setDragActive(false);
+    addFiles(e.dataTransfer.files);
+  }
 
   function buildFormData() {
     const data = new FormData();
@@ -72,7 +101,7 @@ export function AdminProductForm() {
     if (form.is_on_sale) data.append("sale_percentage", form.sale_percentage);
     data.append("new_collection", form.new_collection ? "1" : "0");
     Object.entries(sizes).forEach(([size, stock]) => data.append(`sizes[${size}]`, stock || "0"));
-    if (images) Array.from(images).forEach((file) => data.append("images[]", file));
+    newFiles.forEach((file) => data.append("images[]", file));
     return data;
   }
 
@@ -92,71 +121,112 @@ export function AdminProductForm() {
     }
   }
 
+  function confirmImageDelete() {
+    if (!pendingImageDelete || !product) return;
+    deleteImage.mutate(
+      { productId: product.id, imageId: pendingImageDelete.id },
+      {
+        onSuccess: () => {
+          push("Image removed.");
+          setPendingImageDelete(null);
+        },
+        onError: (err) => {
+          push(getErrorMessage(err), "error");
+          setPendingImageDelete(null);
+        },
+      },
+    );
+  }
+
+  const saving = createProduct.isPending || updateProduct.isPending;
+
   return (
-    <AdminLayout>
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Input id="name" label="Product Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="sm:col-span-2" />
-          <Textarea
-            id="description"
-            label="Description"
-            required
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="sm:col-span-2"
-          />
-          <Input id="price" type="number" label="Price (ден.)" required min={0} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
-          <Select id="category" label="Category" required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
-            {meta?.categories.map((c) => (
-              <option key={c} value={c}>
-                {categoryLabel(c)}
-              </option>
-            ))}
-          </Select>
-          <Select id="color" label="Color" required value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })}>
-            {meta?.colors.map((c) => (
-              <option key={c} value={c} className="capitalize">
-                {c}
-              </option>
-            ))}
-          </Select>
-        </div>
+    <AdminLayout title={isEdit ? "Edit Product" : "Add Product"}>
+      <Link to="/admin/products" className="mb-6 inline-block text-xs text-ink-soft hover:text-ink">
+        ← Back to Products
+      </Link>
 
-        <div className="flex flex-wrap gap-6">
-          <label className="flex items-center gap-2 text-sm text-ink-soft">
-            <input
-              type="checkbox"
-              checked={form.new_collection}
-              onChange={(e) => setForm({ ...form, new_collection: e.target.checked })}
-              className="h-4 w-4 accent-ink"
-            />
-            New Collection
-          </label>
-          <label className="flex items-center gap-2 text-sm text-ink-soft">
-            <input
-              type="checkbox"
-              checked={form.is_on_sale}
-              onChange={(e) => setForm({ ...form, is_on_sale: e.target.checked })}
-              className="h-4 w-4 accent-ink"
-            />
-            On Sale
-          </label>
-          {form.is_on_sale ? (
+      <form onSubmit={handleSubmit} className="max-w-3xl space-y-6 pb-24">
+        <SectionCard title="Details">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <Input
-              id="sale_percentage"
-              type="number"
-              label="Discount %"
-              min={1}
-              max={90}
-              value={form.sale_percentage}
-              onChange={(e) => setForm({ ...form, sale_percentage: e.target.value })}
-              className="w-32"
+              id="name"
+              label="Product Name"
+              required
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="sm:col-span-2"
             />
-          ) : null}
-        </div>
+            <Textarea
+              id="description"
+              label="Description"
+              required
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="sm:col-span-2"
+            />
+            <Input
+              id="price"
+              type="number"
+              label="Price (ден.)"
+              required
+              min={0}
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value })}
+            />
+            <Select id="category" label="Category" required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+              {meta?.categories.map((c) => (
+                <option key={c} value={c}>
+                  {categoryLabel(c)}
+                </option>
+              ))}
+            </Select>
+            <Select id="color" label="Color" required value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })}>
+              {meta?.colors.map((c) => (
+                <option key={c} value={c} className="capitalize">
+                  {c}
+                </option>
+              ))}
+            </Select>
+          </div>
+        </SectionCard>
 
-        <div>
-          <h3 className="eyebrow mb-3">Stock by Size</h3>
+        <SectionCard title="Merchandising">
+          <div className="flex flex-wrap gap-6">
+            <label className="flex items-center gap-2 text-sm text-ink-soft">
+              <input
+                type="checkbox"
+                checked={form.new_collection}
+                onChange={(e) => setForm({ ...form, new_collection: e.target.checked })}
+                className="h-4 w-4 accent-ink"
+              />
+              New Collection
+            </label>
+            <label className="flex items-center gap-2 text-sm text-ink-soft">
+              <input
+                type="checkbox"
+                checked={form.is_on_sale}
+                onChange={(e) => setForm({ ...form, is_on_sale: e.target.checked })}
+                className="h-4 w-4 accent-ink"
+              />
+              On Sale
+            </label>
+            {form.is_on_sale ? (
+              <Input
+                id="sale_percentage"
+                type="number"
+                label="Discount %"
+                min={1}
+                max={90}
+                value={form.sale_percentage}
+                onChange={(e) => setForm({ ...form, sale_percentage: e.target.value })}
+                className="w-32"
+              />
+            ) : null}
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Stock by Size">
           <div className="grid grid-cols-5 gap-3">
             {meta?.sizes.map((size) => (
               <div key={size}>
@@ -171,44 +241,95 @@ export function AdminProductForm() {
               </div>
             ))}
           </div>
-        </div>
+        </SectionCard>
 
-        {isEdit && product && product.images.length > 0 ? (
-          <div>
-            <h3 className="eyebrow mb-3">Current Images</h3>
-            <div className="flex flex-wrap gap-3">
+        <SectionCard title="Images">
+          {isEdit && product && product.images.length > 0 ? (
+            <div className="mb-5 flex flex-wrap gap-3">
               {product.images.map((image) => (
-                <div key={image.id} className="relative h-24 w-20">
+                <div key={image.id} className="group relative h-28 w-24 flex-shrink-0">
                   <img src={image.url} alt="" className="h-full w-full object-cover" />
                   <button
                     type="button"
-                    onClick={() =>
-                      deleteImage.mutate(
-                        { productId: product.id, imageId: image.id },
-                        { onError: (err) => push(getErrorMessage(err), "error") },
-                      )
-                    }
-                    className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-cream"
+                    onClick={() => setPendingImageDelete(image)}
+                    className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink text-cream opacity-0 transition-opacity group-hover:opacity-100"
+                    aria-label="Remove image"
                   >
-                    <TrashIcon width={12} height={12} />
+                    <TrashIcon width={13} height={13} />
                   </button>
                 </div>
               ))}
             </div>
-          </div>
-        ) : null}
+          ) : null}
 
-        <div>
-          <label className="mb-1.5 block text-xs uppercase tracking-wider text-ink-soft">
-            {isEdit ? "Add More Images" : "Images"}
+          {newFiles.length > 0 ? (
+            <div className="mb-5 flex flex-wrap gap-3">
+              {newFiles.map((_, i) => (
+                <div key={i} className="group relative h-28 w-24 flex-shrink-0">
+                  <img src={previewUrls[i]} alt="" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeNewFile(i)}
+                    className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink text-cream opacity-0 transition-opacity group-hover:opacity-100"
+                    aria-label="Remove image"
+                  >
+                    <TrashIcon width={13} height={13} />
+                  </button>
+                  <span className="absolute inset-x-0 bottom-0 truncate bg-ink/70 px-1.5 py-0.5 text-[10px] text-cream">
+                    New
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          <label
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragActive(true);
+            }}
+            onDragLeave={() => setDragActive(false)}
+            onDrop={handleDrop}
+            className={`flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed px-6 py-10 text-center transition-colors ${
+              dragActive ? "border-ink bg-mist" : "border-line hover:border-ink/40"
+            }`}
+          >
+            <UploadIcon width={22} height={22} className="text-ink-soft" />
+            <p className="text-sm text-ink-soft">
+              <span className="text-ink underline">Choose files</span> or drag and drop
+            </p>
+            <p className="text-xs text-ink-soft/70">PNG or JPG, up to 2MB each</p>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e: ChangeEvent<HTMLInputElement>) => addFiles(e.target.files)}
+            />
           </label>
-          <input type="file" accept="image/*" multiple onChange={(e) => setImages(e.target.files)} className="text-sm" />
-        </div>
+        </SectionCard>
 
-        <Button type="submit" size="lg" loading={createProduct.isPending || updateProduct.isPending}>
-          {isEdit ? "Save Changes" : "Create Product"}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button type="submit" size="lg" loading={saving}>
+            {isEdit ? "Save Changes" : "Create Product"}
+          </Button>
+          <Link to="/admin/products">
+            <Button type="button" variant="ghost" size="lg">
+              Cancel
+            </Button>
+          </Link>
+        </div>
       </form>
+
+      <ConfirmDialog
+        open={!!pendingImageDelete}
+        title="Remove this image?"
+        description="This image will be permanently deleted from the product."
+        confirmLabel="Remove Image"
+        loading={deleteImage.isPending}
+        onConfirm={confirmImageDelete}
+        onCancel={() => setPendingImageDelete(null)}
+      />
     </AdminLayout>
   );
 }

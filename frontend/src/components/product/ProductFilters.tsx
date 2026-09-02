@@ -1,5 +1,7 @@
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { useMeta } from "@/hooks/useMeta";
+import { useDebounce } from "@/hooks/useDebounce";
 import { categoryLabel } from "@/lib/format";
 import type { ProductFilters as Filters } from "@/hooks/useProducts";
 
@@ -14,6 +16,33 @@ export function ProductFilters({ filters, onChange }: Props) {
   function set<K extends keyof Filters>(key: K, value: Filters[K]) {
     onChange({ ...filters, [key]: value, page: 1 });
   }
+
+  // Price inputs are typed freely and only applied (triggering a refetch)
+  // once the user pauses, instead of firing a request per keystroke.
+  const [minPrice, setMinPrice] = useState(filters.min_price?.toString() ?? "");
+  const [maxPrice, setMaxPrice] = useState(filters.max_price?.toString() ?? "");
+  const debouncedMin = useDebounce(minPrice);
+  const debouncedMax = useDebounce(maxPrice);
+  const isFirstRun = useRef(true);
+
+  useEffect(() => {
+    setMinPrice(filters.min_price?.toString() ?? "");
+    setMaxPrice(filters.max_price?.toString() ?? "");
+  }, [filters.min_price, filters.max_price]);
+
+  useEffect(() => {
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      return;
+    }
+    onChange({
+      ...filters,
+      min_price: debouncedMin ? Number(debouncedMin) : undefined,
+      max_price: debouncedMax ? Number(debouncedMax) : undefined,
+      page: 1,
+    });
+    // eslint-disable-next-line
+  }, [debouncedMin, debouncedMax]);
 
   return (
     <div className="space-y-8">
@@ -65,16 +94,16 @@ export function ProductFilters({ filters, onChange }: Props) {
           <input
             type="number"
             placeholder="Min"
-            value={filters.min_price ?? ""}
-            onChange={(e) => set("min_price", e.target.value ? Number(e.target.value) : undefined)}
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
             className="w-full border border-line bg-cream-soft px-3 py-2 text-sm focus:border-ink focus:outline-none"
           />
           <span className="text-ink-soft">–</span>
           <input
             type="number"
             placeholder="Max"
-            value={filters.max_price ?? ""}
-            onChange={(e) => set("max_price", e.target.value ? Number(e.target.value) : undefined)}
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
             className="w-full border border-line bg-cream-soft px-3 py-2 text-sm focus:border-ink focus:outline-none"
           />
         </div>

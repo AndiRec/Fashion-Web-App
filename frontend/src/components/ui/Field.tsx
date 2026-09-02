@@ -1,8 +1,9 @@
 import { type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes, forwardRef } from "react";
 import clsx from "clsx";
+import { ChevronDownIcon } from "@/components/icons";
 
 const fieldClass =
-  "w-full border border-line bg-cream-soft px-4 py-3 text-sm text-ink placeholder:text-ink-soft/50 focus:border-ink focus:outline-none transition-colors";
+  "w-full border border-line bg-cream-soft px-4 py-3 text-sm text-ink placeholder:text-ink-soft/50 focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink/10 transition-colors";
 
 interface WrapperProps {
   label?: string;
@@ -50,9 +51,21 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
           {label}
         </label>
       ) : null}
-      <select id={id} ref={ref} className={clsx(fieldClass, "appearance-none", error && "border-rust", className)} {...props}>
-        {children}
-      </select>
+      <div className="relative">
+        <select
+          id={id}
+          ref={ref}
+          className={clsx(fieldClass, "cursor-pointer appearance-none pr-9", error && "border-rust", className)}
+          {...props}
+        >
+          {children}
+        </select>
+        <ChevronDownIcon
+          width={14}
+          height={14}
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft"
+        />
+      </div>
       {error ? <p className="mt-1 text-xs text-rust">{error}</p> : null}
     </div>
   ),

@@ -21,7 +21,7 @@ export function CartDrawer() {
   return (
     <div className="fixed inset-0 z-50 bg-ink/40" onClick={closeCart}>
       <div
-        className="animate-slide-in-right ml-auto flex h-full w-full max-w-md flex-col bg-cream"
+        className="animate-slide-in-right ml-auto flex h-full w-full max-w-md flex-col bg-cream shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-5">

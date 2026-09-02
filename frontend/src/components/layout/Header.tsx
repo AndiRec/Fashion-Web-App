@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { type FormEvent, useEffect, useRef, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/auth";
 import { useUiStore } from "@/store/ui";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
-import { BagIcon, HeartIcon, MenuIcon, UserIcon, XIcon } from "@/components/icons";
+import { BagIcon, HeartIcon, MenuIcon, SearchIcon, UserIcon, XIcon } from "@/components/icons";
 
 const navLinks = [
   { label: "New Collection", to: "/shop?new_collection=1" },
@@ -15,6 +15,11 @@ const navLinks = [
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
   const user = useAuthStore((s) => s.user);
   const { openCart, openWishlist } = useUiStore();
   const { data: cart } = useCart();
@@ -22,6 +27,17 @@ export function Header() {
 
   const cartCount = cart?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
   const wishlistCount = wishlist?.length ?? 0;
+
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus();
+  }, [searchOpen]);
+
+  function handleSearchSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!searchValue.trim()) return;
+    navigate(`/shop?search=${encodeURIComponent(searchValue.trim())}`);
+    setSearchOpen(false);
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-cream/95 backdrop-blur">
@@ -51,7 +67,10 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-4 sm:gap-5">
-          <Link to={user ? (user.is_admin ? "/admin/products" : "/account") : "/login"} aria-label="Account">
+          <button onClick={() => setSearchOpen((v) => !v)} aria-label="Search" aria-expanded={searchOpen}>
+            <SearchIcon />
+          </button>
+          <Link to={user ? (user.is_admin ? "/admin" : "/account") : "/login"} aria-label="Account">
             <UserIcon />
           </Link>
           <button onClick={openWishlist} className="relative" aria-label="Wishlist">
@@ -73,12 +92,27 @@ export function Header() {
         </div>
       </div>
 
+      {searchOpen ? (
+        <div className="border-t border-line bg-cream">
+          <form onSubmit={handleSearchSubmit} className="container-boutique flex items-center gap-3 py-4">
+            <SearchIcon width={18} height={18} className="flex-shrink-0 text-ink-soft" />
+            <input
+              ref={searchInputRef}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search for dresses, blazers, accessories…"
+              className="w-full bg-transparent text-sm text-ink placeholder:text-ink-soft/50 focus:outline-none"
+            />
+            <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search" className="text-ink-soft">
+              <XIcon width={16} height={16} />
+            </button>
+          </form>
+        </div>
+      ) : null}
+
       {mobileOpen ? (
         <div className="fixed inset-0 z-50 bg-ink/40 lg:hidden" onClick={() => setMobileOpen(false)}>
-          <div
-            className="animate-slide-in-left h-full w-72 bg-cream p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="animate-slide-in-left h-full w-72 bg-cream p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="mb-8">
               <XIcon />
             </button>

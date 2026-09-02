@@ -100,6 +100,6 @@ class CheckoutController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         }
 
-        return new OrderResource($order->load(['items.product', 'address']));
+        return new OrderResource($order->load(['items.product.productImages', 'items.product.variants', 'address']));
     }
 }

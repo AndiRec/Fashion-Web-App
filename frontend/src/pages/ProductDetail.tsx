@@ -10,7 +10,8 @@ import { getErrorMessage } from "@/lib/api";
 import { categoryLabel } from "@/lib/format";
 import { PriceTag } from "@/components/product/PriceTag";
 import { Button } from "@/components/ui/Button";
-import { Spinner } from "@/components/ui/Spinner";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { HeartIcon } from "@/components/icons";
 import clsx from "clsx";
 
@@ -27,8 +28,39 @@ export function ProductDetail() {
   const push = useToastStore((s) => s.push);
   const openCart = useUiStore((s) => s.openCart);
 
-  if (isLoading) return <Spinner className="py-32" />;
-  if (!product) return <div className="container-boutique py-32 text-center text-ink-soft">Product not found.</div>;
+  if (isLoading) {
+    return (
+      <div className="container-boutique py-12">
+        <Skeleton className="mb-8 h-3 w-32" />
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+          <Skeleton className="aspect-[3/4] w-full" />
+          <div className="space-y-4 lg:pt-4">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-11 w-full max-w-sm" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="container-boutique">
+        <EmptyState
+          title="Product not found"
+          description="This item may have been removed or is no longer available."
+          action={
+            <Link to="/shop">
+              <Button>Back to Shop</Button>
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
   const isWishlisted = wishlist?.some((item) => item.product.id === product.id) ?? false;
   const variant = product.variants.find((v) => v.size === selectedSize);

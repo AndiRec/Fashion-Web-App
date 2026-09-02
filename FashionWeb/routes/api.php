@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AddressController;
+use App\Http\Controllers\Api\AdminStatsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
@@ -63,5 +64,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/admin/orders', [OrderController::class, 'adminIndex']);
         Route::post('/admin/orders/{order}/status', [OrderController::class, 'updateStatus']);
+        Route::get('/admin/stats', [AdminStatsController::class, 'index']);
     });
 });

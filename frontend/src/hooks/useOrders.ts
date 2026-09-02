@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
-import type { Order, OrderStatus, Paginated } from "@/lib/types";
+import type { Order, OrderStatus, Paginated, Product } from "@/lib/types";
 
 export function useMyOrders() {
   const token = useAuthStore((s) => s.token);
@@ -48,11 +48,22 @@ export function useCheckout() {
   });
 }
 
-export function useAdminOrders(status?: OrderStatus | "") {
+export interface AdminOrderFilters {
+  status?: OrderStatus | "";
+  search?: string;
+  page?: number;
+}
+
+export function useAdminOrders(filters: AdminOrderFilters) {
   return useQuery({
-    queryKey: ["admin-orders", status],
+    queryKey: ["admin-orders", filters],
     queryFn: async () =>
-      (await api.get<Paginated<Order>>("/admin/orders", { params: status ? { status } : {} })).data,
+      (
+        await api.get<Paginated<Order>>("/admin/orders", {
+          params: { status: filters.status || undefined, search: filters.search || undefined, page: filters.page },
+        })
+      ).data,
+    placeholderData: (prev) => prev,
   });
 }
 
@@ -61,6 +72,27 @@ export function useUpdateOrderStatus() {
   return useMutation({
     mutationFn: async ({ id, status }: { id: number; status: OrderStatus }) =>
       (await api.post<Order>(`/admin/orders/${id}/status`, { status })).data,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-orders"] }),
+    onSuccess: (order) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["orders", order.id] });
+    },
+  });
+}
+
+export interface AdminStats {
+  total_revenue: number;
+  total_orders: number;
+  total_products: number;
+  pending_orders: number;
+  orders_by_status: Partial<Record<OrderStatus, number>>;
+  low_stock_products: Product[];
+  recent_orders: Order[];
+}
+
+export function useAdminStats() {
+  return useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: async () => (await api.get<AdminStats>("/admin/stats")).data,
   });
 }

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useFeaturedProducts } from "@/hooks/useProducts";
 import { ProductGrid } from "@/components/product/ProductGrid";
-import { Spinner } from "@/components/ui/Spinner";
+import { ProductGridSkeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
 
 export function Home() {
@@ -64,7 +64,7 @@ export function Home() {
             View All
           </Link>
         </div>
-        {isLoading ? <Spinner /> : <ProductGrid products={featured?.new_collection ?? []} />}
+        {isLoading ? <ProductGridSkeleton count={4} /> : <ProductGrid products={featured?.new_collection ?? []} />}
       </section>
 
       {/* Editorial split */}
@@ -89,7 +89,7 @@ export function Home() {
       </section>
 
       {/* Sale */}
-      {featured?.on_sale && featured.on_sale.length > 0 ? (
+      {isLoading || (featured?.on_sale && featured.on_sale.length > 0) ? (
         <section className="container-boutique py-20">
           <div className="mb-10 flex items-end justify-between">
             <div>
@@ -100,7 +100,7 @@ export function Home() {
               View All
             </Link>
           </div>
-          <ProductGrid products={featured.on_sale} />
+          {isLoading ? <ProductGridSkeleton count={4} /> : <ProductGrid products={featured?.on_sale ?? []} />}
         </section>
       ) : null}
 
