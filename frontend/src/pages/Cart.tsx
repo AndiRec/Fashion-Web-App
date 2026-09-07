@@ -41,7 +41,7 @@ export function Cart() {
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_360px]">
         <ul className="divide-y divide-line border-y border-line">
           {cart.map((item) => (
-            <li key={item.id} className="flex gap-5 py-6">
+            <li key={item.id} className="animate-item-in flex gap-5 py-6">
               <Link to={`/products/${item.product.id}`} className="h-32 w-24 flex-shrink-0 bg-mist">
                 {item.product.images[0] ? (
                   <img src={item.product.images[0].url} alt={item.product.name} className="h-full w-full object-cover" />
@@ -60,7 +60,7 @@ export function Cart() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center border border-line">
                     <button
-                      className="p-2 disabled:opacity-30"
+                      className="press p-2 disabled:opacity-30 disabled:active:scale-100"
                       disabled={item.quantity <= 1}
                       onClick={() =>
                         updateItem.mutate(
@@ -73,7 +73,7 @@ export function Cart() {
                     </button>
                     <span className="w-10 text-center text-sm">{item.quantity}</span>
                     <button
-                      className="p-2 disabled:opacity-30"
+                      className="press p-2 disabled:opacity-30 disabled:active:scale-100"
                       disabled={item.available_stock !== null && item.quantity >= (item.available_stock ?? 0)}
                       onClick={() =>
                         updateItem.mutate(
@@ -87,7 +87,7 @@ export function Cart() {
                   </div>
                   <button
                     onClick={() => removeItem.mutate(item.id, { onError: (err) => push(getErrorMessage(err), "error") })}
-                    className="flex items-center gap-1.5 text-xs text-ink-soft hover:text-rust"
+                    className="press flex items-center gap-1.5 text-xs text-ink-soft hover:text-rust"
                   >
                     <TrashIcon width={14} height={14} /> Remove
                   </button>

@@ -20,7 +20,7 @@ export const IconButton = forwardRef<HTMLButtonElement, Props>(
       aria-label={label}
       title={label}
       className={clsx(
-        "inline-flex h-9 w-9 flex-shrink-0 items-center justify-center border bg-cream transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40",
+        "inline-flex h-9 w-9 flex-shrink-0 items-center justify-center border bg-cream transition-[color,background-color,border-color,transform] duration-150 active:scale-90 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100",
         variants[variant],
         className,
       )}

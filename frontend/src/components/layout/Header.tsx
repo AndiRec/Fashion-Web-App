@@ -1,9 +1,11 @@
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import clsx from "clsx";
 import { useAuthStore } from "@/store/auth";
 import { useUiStore } from "@/store/ui";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useBumpOnChange } from "@/hooks/useBump";
 import { BagIcon, HeartIcon, MenuIcon, SearchIcon, UserIcon, XIcon } from "@/components/icons";
 
 const navLinks = [
@@ -27,6 +29,8 @@ export function Header() {
 
   const cartCount = cart?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
   const wishlistCount = wishlist?.length ?? 0;
+  const cartBumping = useBumpOnChange(cartCount);
+  const wishlistBumping = useBumpOnChange(wishlistCount);
 
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
@@ -46,7 +50,7 @@ export function Header() {
       </div>
 
       <div className="container-boutique flex h-20 items-center justify-between">
-        <button className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+        <button className="press lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
           <MenuIcon />
         </button>
 
@@ -67,24 +71,34 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-4 sm:gap-5">
-          <button onClick={() => setSearchOpen((v) => !v)} aria-label="Search" aria-expanded={searchOpen}>
+          <button className="press" onClick={() => setSearchOpen((v) => !v)} aria-label="Search" aria-expanded={searchOpen}>
             <SearchIcon />
           </button>
-          <Link to={user ? (user.is_admin ? "/admin" : "/account") : "/login"} aria-label="Account">
+          <Link to={user ? (user.is_admin ? "/admin" : "/account") : "/login"} aria-label="Account" className="press">
             <UserIcon />
           </Link>
-          <button onClick={openWishlist} className="relative" aria-label="Wishlist">
+          <button onClick={openWishlist} className="press relative" aria-label="Wishlist">
             <HeartIcon />
             {wishlistCount > 0 ? (
-              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-rust text-[9px] text-cream">
+              <span
+                className={clsx(
+                  "absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-rust text-[9px] text-cream",
+                  wishlistBumping && "animate-bump",
+                )}
+              >
                 {wishlistCount}
               </span>
             ) : null}
           </button>
-          <button onClick={openCart} className="relative" aria-label="Cart">
+          <button onClick={openCart} className="press relative" aria-label="Cart">
             <BagIcon />
             {cartCount > 0 ? (
-              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-ink text-[9px] text-cream">
+              <span
+                className={clsx(
+                  "absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-ink text-[9px] text-cream",
+                  cartBumping && "animate-bump",
+                )}
+              >
                 {cartCount}
               </span>
             ) : null}

@@ -22,7 +22,7 @@ export function WishlistDrawer() {
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-5">
           <h2 className="font-display text-xl">Wishlist</h2>
-          <button onClick={closeWishlist} aria-label="Close wishlist">
+          <button onClick={closeWishlist} aria-label="Close wishlist" className="press">
             <XIcon />
           </button>
         </div>
@@ -35,7 +35,7 @@ export function WishlistDrawer() {
           ) : (
             <ul className="space-y-6">
               {wishlist.map((item) => (
-                <li key={item.id} className="flex gap-4">
+                <li key={item.id} className="animate-item-in flex gap-4">
                   <Link to={`/products/${item.product.id}`} onClick={closeWishlist} className="h-24 w-20 flex-shrink-0 bg-mist">
                     {item.product.images[0] ? (
                       <img src={item.product.images[0].url} alt={item.product.name} className="h-full w-full object-cover" />
@@ -49,7 +49,7 @@ export function WishlistDrawer() {
                           removeItem.mutate(item.id, { onError: (err) => push(getErrorMessage(err), "error") })
                         }
                         aria-label="Remove item"
-                        className="text-ink-soft hover:text-rust"
+                        className="press text-ink-soft hover:text-rust"
                       >
                         <TrashIcon width={16} height={16} />
                       </button>

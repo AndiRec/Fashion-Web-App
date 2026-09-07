@@ -1,8 +1,10 @@
 import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
+import clsx from "clsx";
 import { useAuthStore } from "@/store/auth";
 import { useToggleWishlist, useWishlist } from "@/hooks/useWishlist";
 import { useToastStore } from "@/store/toast";
+import { useBumpOnChange } from "@/hooks/useBump";
 import { getErrorMessage } from "@/lib/api";
 import { HeartIcon } from "@/components/icons";
 import { PriceTag } from "@/components/product/PriceTag";
@@ -16,6 +18,7 @@ export function ProductCard({ product }: { product: Product }) {
   const push = useToastStore((s) => s.push);
 
   const isWishlisted = wishlist?.some((item) => item.product.id === product.id) ?? false;
+  const justWishlisted = useBumpOnChange(isWishlisted);
   const image = product.images[0]?.url;
   const soldOut = (product.total_stock ?? 1) <= 0;
 
@@ -25,7 +28,7 @@ export function ProductCard({ product }: { product: Product }) {
       push("Please sign in to save favorites.", "error");
       return;
     }
-    toggleWishlist.mutate(product.id, {
+    toggleWishlist.mutate(product, {
       onError: (err) => push(getErrorMessage(err), "error"),
     });
   }
@@ -61,9 +64,15 @@ export function ProductCard({ product }: { product: Product }) {
         <button
           onClick={handleWishlist}
           aria-label="Toggle wishlist"
-          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-cream/90 text-ink opacity-0 backdrop-blur transition-opacity duration-200 group-hover:opacity-100 hover:bg-cream"
+          aria-pressed={isWishlisted}
+          className="press absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-cream/90 text-ink opacity-100 backdrop-blur transition-opacity duration-200 hover:bg-cream sm:opacity-0 sm:group-hover:opacity-100"
         >
-          <HeartIcon filled={isWishlisted} width={16} height={16} className={isWishlisted ? "text-rust" : ""} />
+          <HeartIcon
+            filled={isWishlisted}
+            width={16}
+            height={16}
+            className={clsx(isWishlisted && "text-rust", justWishlisted && "animate-bump")}
+          />
         </button>
       </div>
 

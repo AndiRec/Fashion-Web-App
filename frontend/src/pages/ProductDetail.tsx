@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useProduct } from "@/hooks/useProducts";
 import { useAddToCart } from "@/hooks/useCart";
 import { useToggleWishlist, useWishlist } from "@/hooks/useWishlist";
+import { useBumpOnChange } from "@/hooks/useBump";
 import { useAuthStore } from "@/store/auth";
 import { useToastStore } from "@/store/toast";
 import { useUiStore } from "@/store/ui";
@@ -27,6 +28,8 @@ export function ProductDetail() {
   const { data: wishlist } = useWishlist();
   const push = useToastStore((s) => s.push);
   const openCart = useUiStore((s) => s.openCart);
+  const isWishlisted = wishlist?.some((item) => item.product.id === product?.id) ?? false;
+  const justWishlisted = useBumpOnChange(isWishlisted);
 
   if (isLoading) {
     return (
@@ -62,7 +65,6 @@ export function ProductDetail() {
     );
   }
 
-  const isWishlisted = wishlist?.some((item) => item.product.id === product.id) ?? false;
   const variant = product.variants.find((v) => v.size === selectedSize);
   const outOfStock = (product.total_stock ?? 0) <= 0;
 
@@ -75,15 +77,13 @@ export function ProductDetail() {
       push("Please select a size.", "error");
       return;
     }
+    // Give feedback immediately rather than waiting on the network — the
+    // cache is already updated optimistically by the mutation itself.
+    push("Added to your bag.");
+    openCart();
     addToCart.mutate(
-      { productId: product!.id, size: selectedSize },
-      {
-        onSuccess: () => {
-          push("Added to your bag.");
-          openCart();
-        },
-        onError: (err) => push(getErrorMessage(err), "error"),
-      },
+      { productId: product!.id, size: selectedSize, product },
+      { onError: (err) => push(getErrorMessage(err), "error") },
     );
   }
 
@@ -92,7 +92,8 @@ export function ProductDetail() {
       push("Please sign in to save favorites.", "error");
       return;
     }
-    toggleWishlist.mutate(product!.id, { onError: (err) => push(getErrorMessage(err), "error") });
+    if (!product) return;
+    toggleWishlist.mutate(product, { onError: (err) => push(getErrorMessage(err), "error") });
   }
 
   return (
@@ -169,9 +170,13 @@ export function ProductDetail() {
             <button
               onClick={handleWishlist}
               aria-label="Toggle wishlist"
-              className="flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center border border-ink"
+              aria-pressed={isWishlisted}
+              className="press flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center border border-ink"
             >
-              <HeartIcon filled={isWishlisted} className={isWishlisted ? "text-rust" : ""} />
+              <HeartIcon
+                filled={isWishlisted}
+                className={clsx(isWishlisted && "text-rust", justWishlisted && "animate-bump")}
+              />
             </button>
           </div>
 

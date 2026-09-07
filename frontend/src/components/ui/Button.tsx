@@ -31,7 +31,7 @@ export const Button = forwardRef<HTMLButtonElement, Props>(
         ref={ref}
         disabled={disabled || loading}
         className={clsx(
-          "inline-flex items-center justify-center gap-2 whitespace-nowrap uppercase tracking-[0.12em] font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-taupe-dark focus-visible:ring-offset-2 focus-visible:ring-offset-cream disabled:cursor-not-allowed disabled:opacity-50",
+          "inline-flex items-center justify-center gap-2 whitespace-nowrap uppercase tracking-[0.12em] font-medium transition-[color,background-color,border-color,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-taupe-dark focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100",
           variants[variant],
           sizes[size],
           className,

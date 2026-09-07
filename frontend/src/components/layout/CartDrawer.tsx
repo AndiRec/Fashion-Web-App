@@ -26,7 +26,7 @@ export function CartDrawer() {
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-5">
           <h2 className="font-display text-xl">Your Bag</h2>
-          <button onClick={closeCart} aria-label="Close cart">
+          <button onClick={closeCart} aria-label="Close cart" className="press">
             <XIcon />
           </button>
         </div>
@@ -39,7 +39,7 @@ export function CartDrawer() {
           ) : (
             <ul className="space-y-6">
               {cart.map((item) => (
-                <li key={item.id} className="flex gap-4">
+                <li key={item.id} className="animate-item-in flex gap-4">
                   <Link to={`/products/${item.product.id}`} onClick={closeCart} className="h-24 w-20 flex-shrink-0 bg-mist">
                     {item.product.images[0] ? (
                       <img src={item.product.images[0].url} alt={item.product.name} className="h-full w-full object-cover" />
@@ -56,7 +56,7 @@ export function CartDrawer() {
                           removeItem.mutate(item.id, { onError: (err) => push(getErrorMessage(err), "error") })
                         }
                         aria-label="Remove item"
-                        className="text-ink-soft hover:text-rust"
+                        className="press text-ink-soft hover:text-rust"
                       >
                         <TrashIcon width={16} height={16} />
                       </button>
@@ -64,7 +64,7 @@ export function CartDrawer() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center border border-line">
                         <button
-                          className="p-1.5 disabled:opacity-30"
+                          className="press p-1.5 disabled:opacity-30 disabled:active:scale-100"
                           disabled={item.quantity <= 1}
                           onClick={() =>
                             updateItem.mutate(
@@ -77,7 +77,7 @@ export function CartDrawer() {
                         </button>
                         <span className="w-8 text-center text-sm">{item.quantity}</span>
                         <button
-                          className="p-1.5 disabled:opacity-30"
+                          className="press p-1.5 disabled:opacity-30 disabled:active:scale-100"
                           disabled={item.available_stock !== null && item.quantity >= (item.available_stock ?? 0)}
                           onClick={() =>
                             updateItem.mutate(
