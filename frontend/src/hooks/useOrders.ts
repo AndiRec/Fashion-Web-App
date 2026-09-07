@@ -13,10 +13,15 @@ export function useMyOrders() {
 }
 
 export function useOrder(id: number | string | undefined) {
+  // Normalized to a number: `id` arrives as a string from useParams() on
+  // the detail pages, but as a number everywhere else (e.g. order.id from
+  // a list). Keeping the cache key type consistent is what lets
+  // useUpdateOrderStatus's invalidation actually find this query.
+  const numericId = id !== undefined ? Number(id) : undefined;
   return useQuery({
-    queryKey: ["orders", id],
-    queryFn: async () => (await api.get<Order>(`/orders/${id}`)).data,
-    enabled: id !== undefined,
+    queryKey: ["orders", numericId],
+    queryFn: async () => (await api.get<Order>(`/orders/${numericId}`)).data,
+    enabled: numericId !== undefined,
   });
 }
 
@@ -72,10 +77,19 @@ export function useUpdateOrderStatus() {
   return useMutation({
     mutationFn: async ({ id, status }: { id: number; status: OrderStatus }) =>
       (await api.post<Order>(`/admin/orders/${id}/status`, { status })).data,
-    onSuccess: (order) => {
+    onMutate: async ({ id, status }) => {
+      await queryClient.cancelQueries({ queryKey: ["orders", id] });
+      const previous = queryClient.getQueryData<Order>(["orders", id]);
+      queryClient.setQueryData<Order>(["orders", id], (old) => (old ? { ...old, status } : old));
+      return { previous };
+    },
+    onError: (_err, vars, context) => {
+      if (context?.previous) queryClient.setQueryData(["orders", vars.id], context.previous);
+    },
+    onSettled: (order, _err, vars) => {
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
-      queryClient.invalidateQueries({ queryKey: ["orders", order.id] });
+      queryClient.invalidateQueries({ queryKey: ["orders", order?.id ?? vars.id] });
     },
   });
 }

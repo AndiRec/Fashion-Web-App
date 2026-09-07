@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAdminOrders, useUpdateOrderStatus } from "@/hooks/useOrders";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useToastStore } from "@/store/toast";
@@ -24,6 +24,7 @@ export function AdminOrders() {
   const { data, isLoading, isFetching } = useAdminOrders({ status: statusFilter, search: debouncedSearch, page });
   const updateStatus = useUpdateOrderStatus();
   const push = useToastStore((s) => s.push);
+  const navigate = useNavigate();
 
   return (
     <AdminLayout title="Orders">
@@ -80,11 +81,13 @@ export function AdminOrders() {
               </tr>
             ) : (
               data?.data.map((order) => (
-                <tr key={order.id} className="hover:bg-cream-soft/60">
+                <tr
+                  key={order.id}
+                  onClick={() => navigate(`/admin/orders/${order.id}`)}
+                  className="cursor-pointer hover:bg-cream-soft/60"
+                >
                   <td className="px-4 py-3">
-                    <Link to={`/admin/orders/${order.id}`} className="link-underline text-ink">
-                      #{order.id}
-                    </Link>
+                    <span className="link-underline text-ink">#{order.id}</span>
                   </td>
                   <td className="px-4 py-3">
                     <p className="text-ink">{order.customer?.name}</p>
@@ -92,7 +95,7 @@ export function AdminOrders() {
                   </td>
                   <td className="px-4 py-3 text-ink-soft">{formatDate(order.created_at)}</td>
                   <td className="px-4 py-3 text-ink">{formatPrice(order.total_price)}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <Select
                       id={`status-${order.id}`}
                       value={order.status}
