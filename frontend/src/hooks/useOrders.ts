@@ -94,19 +94,31 @@ export function useUpdateOrderStatus() {
   });
 }
 
+export type RevenueRange = "all_time" | "this_month" | "last_month" | "last_30_days" | "this_year";
+
+export interface MonthlyRevenuePoint {
+  month: string;
+  label: string;
+  revenue: number;
+  orders: number;
+}
+
 export interface AdminStats {
+  range: RevenueRange;
   total_revenue: number;
   total_orders: number;
   total_products: number;
   pending_orders: number;
   orders_by_status: Partial<Record<OrderStatus, number>>;
+  monthly_revenue: MonthlyRevenuePoint[];
   low_stock_products: Product[];
   recent_orders: Order[];
 }
 
-export function useAdminStats() {
+export function useAdminStats(range: RevenueRange = "all_time") {
   return useQuery({
-    queryKey: ["admin-stats"],
-    queryFn: async () => (await api.get<AdminStats>("/admin/stats")).data,
+    queryKey: ["admin-stats", range],
+    queryFn: async () => (await api.get<AdminStats>("/admin/stats", { params: { range } })).data,
+    placeholderData: (prev) => prev,
   });
 }

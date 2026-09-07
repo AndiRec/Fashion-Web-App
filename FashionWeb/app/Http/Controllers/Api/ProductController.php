@@ -47,10 +47,24 @@ class ProductController extends Controller
             $query->where('name', 'like', '%'.$request->search.'%');
         }
 
+        if ($request->filled('stock_status')) {
+            $query->withSum('variants as stock_sum', 'stock')->groupBy('products.id');
+
+            match ($request->input('stock_status')) {
+                'out' => $query->having('stock_sum', '<=', 0),
+                'low' => $query->having('stock_sum', '>', 0)->having('stock_sum', '<=', 10),
+                'in_stock' => $query->having('stock_sum', '>', 10),
+                default => null,
+            };
+        }
+
         match ($request->input('sort')) {
             'price_asc' => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),
             'oldest' => $query->orderBy('created_at', 'asc'),
+            'name_asc' => $query->orderBy('name', 'asc'),
+            'stock_asc' => $query->withSum('variants as stock_sum_sort', 'stock')->orderBy('stock_sum_sort', 'asc'),
+            'stock_desc' => $query->withSum('variants as stock_sum_sort', 'stock')->orderBy('stock_sum_sort', 'desc'),
             default => $query->orderBy('created_at', 'desc'),
         };
 

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
-import { useDeleteProduct, useProducts } from "@/hooks/useProducts";
+import { useDeleteProduct, useProducts, type ProductFilters } from "@/hooks/useProducts";
+import { useMeta } from "@/hooks/useMeta";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useToastStore } from "@/store/toast";
 import { getErrorMessage } from "@/lib/api";
@@ -12,24 +13,57 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
+import { Select } from "@/components/ui/Field";
 import { EditIcon, PackageIcon, PlusIcon, SearchIcon, TrashIcon } from "@/components/icons";
 import { categoryLabel, formatPrice } from "@/lib/format";
 import type { Product } from "@/lib/types";
 
+const stockOptions: { value: NonNullable<ProductFilters["stock_status"]> | ""; label: string }[] = [
+  { value: "", label: "All Stock Levels" },
+  { value: "out", label: "Sold Out" },
+  { value: "low", label: "Low Stock (≤10)" },
+  { value: "in_stock", label: "In Stock" },
+];
+
+const sortOptions: { value: NonNullable<ProductFilters["sort"]>; label: string }[] = [
+  { value: "newest", label: "Newest First" },
+  { value: "oldest", label: "Oldest First" },
+  { value: "name_asc", label: "Name A–Z" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+  { value: "stock_asc", label: "Stock: Low to High" },
+  { value: "stock_desc", label: "Stock: High to Low" },
+];
+
 export function AdminProducts() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
+  const [stockStatus, setStockStatus] = useState<NonNullable<ProductFilters["stock_status"]> | "">("");
+  const [sort, setSort] = useState<NonNullable<ProductFilters["sort"]>>("newest");
   const debouncedSearch = useDebounce(search);
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
 
+  const { data: meta } = useMeta();
   const { data, isLoading, isFetching } = useProducts({
     page,
     per_page: 15,
-    sort: "newest",
+    sort,
     search: debouncedSearch || undefined,
+    category: category || undefined,
+    stock_status: stockStatus || undefined,
   });
   const deleteProduct = useDeleteProduct();
   const push = useToastStore((s) => s.push);
+
+  const hasActiveFilters = !!(search || category || stockStatus);
+
+  function resetFilters() {
+    setSearch("");
+    setCategory("");
+    setStockStatus("");
+    setPage(1);
+  }
 
   function confirmDelete() {
     if (!pendingDelete) return;
@@ -57,17 +91,71 @@ export function AdminProducts() {
         </Link>
       }
     >
-      <div className="mb-6 flex max-w-sm items-center gap-2 border border-line bg-cream-soft px-3">
-        <SearchIcon width={16} height={16} className="text-ink-soft" />
-        <input
-          value={search}
+      <div className="mb-6 flex flex-wrap items-end gap-3">
+        <div className="flex min-w-[200px] flex-1 items-center gap-2 border border-line bg-cream-soft px-3">
+          <SearchIcon width={16} height={16} className="text-ink-soft" />
+          <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search products…"
+            className="w-full bg-transparent py-2.5 text-sm text-ink placeholder:text-ink-soft/50 focus:outline-none"
+          />
+        </div>
+
+        <Select
+          id="category-filter"
+          value={category}
           onChange={(e) => {
-            setSearch(e.target.value);
+            setCategory(e.target.value);
             setPage(1);
           }}
-          placeholder="Search products…"
-          className="w-full bg-transparent py-2.5 text-sm text-ink placeholder:text-ink-soft/50 focus:outline-none"
-        />
+          className="w-auto"
+        >
+          <option value="">All Categories</option>
+          {meta?.categories.map((c) => (
+            <option key={c} value={c}>
+              {categoryLabel(c)}
+            </option>
+          ))}
+        </Select>
+
+        <Select
+          id="stock-filter"
+          value={stockStatus}
+          onChange={(e) => {
+            setStockStatus(e.target.value as NonNullable<ProductFilters["stock_status"]> | "");
+            setPage(1);
+          }}
+          className="w-auto"
+        >
+          {stockOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </Select>
+
+        <Select
+          id="sort-filter"
+          value={sort}
+          onChange={(e) => setSort(e.target.value as NonNullable<ProductFilters["sort"]>)}
+          className="w-auto"
+        >
+          {sortOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </Select>
+
+        {hasActiveFilters ? (
+          <button onClick={resetFilters} className="link-underline text-xs uppercase tracking-wider text-ink-soft">
+            Clear Filters
+          </button>
+        ) : null}
       </div>
 
       <div className="overflow-x-auto border border-line bg-cream">
@@ -82,13 +170,16 @@ export function AdminProducts() {
               <th className="px-4 py-3 font-medium text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className={clsx("divide-y divide-line", isFetching && "opacity-60")}>
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => <TableRowSkeleton key={i} columns={6} />)
             ) : data?.data.length === 0 ? (
               <tr>
                 <td colSpan={6}>
-                  <EmptyState title="No products found" description="Try a different search, or add your first product." />
+                  <EmptyState
+                    title="No products found"
+                    description={hasActiveFilters ? "Try a different search or filter." : "Add your first product."}
+                  />
                 </td>
               </tr>
             ) : (
@@ -155,11 +246,11 @@ export function AdminProducts() {
         </table>
       </div>
 
-      {data && data.meta.last_page > 1 ? (
-        <div className={isFetching ? "opacity-60" : ""}>
-          <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onChange={setPage} />
-        </div>
-      ) : null}
+      <div className="mt-3 flex items-center justify-between text-xs text-ink-soft">
+        <span>{data ? `${data.meta.total} product${data.meta.total === 1 ? "" : "s"}` : ""}</span>
+      </div>
+
+      {data && data.meta.last_page > 1 ? <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onChange={setPage} /> : null}
 
       <ConfirmDialog
         open={!!pendingDelete}

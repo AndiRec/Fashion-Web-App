@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { useAuthStore } from "@/store/auth";
@@ -124,27 +125,40 @@ export function Header() {
         </div>
       ) : null}
 
-      {mobileOpen ? (
-        <div className="fixed inset-0 z-50 bg-ink/40 lg:hidden" onClick={() => setMobileOpen(false)}>
-          <div className="animate-slide-in-left h-full w-72 bg-cream p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="mb-8">
-              <XIcon />
-            </button>
-            <nav className="flex flex-col gap-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.to}
-                  onClick={() => setMobileOpen(false)}
-                  className="text-sm uppercase tracking-[0.15em] text-ink"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </div>
-      ) : null}
+      {mobileOpen
+        ? createPortal(
+            // Rendered into document.body rather than nested in <header>: the
+            // header's backdrop-blur makes it the containing block for any
+            // position:fixed descendant (that's how backdrop-filter works per
+            // spec), which was collapsing this overlay down to the header's
+            // own ~80px height instead of the full viewport — the nav links
+            // simply overflowed past that short, solid box with no
+            // background behind them, reading as "transparent".
+            <div className="fixed inset-0 z-50 bg-ink/40 lg:hidden" onClick={() => setMobileOpen(false)}>
+              <div
+                className="animate-slide-in-left h-full w-72 overflow-y-auto bg-cream p-6 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="press mb-8">
+                  <XIcon />
+                </button>
+                <nav className="flex flex-col gap-6">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.label}
+                      to={link.to}
+                      onClick={() => setMobileOpen(false)}
+                      className="text-sm uppercase tracking-[0.15em] text-ink"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </header>
   );
 }

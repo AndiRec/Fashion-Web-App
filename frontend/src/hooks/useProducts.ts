@@ -10,7 +10,8 @@ export interface ProductFilters {
   on_sale?: boolean;
   new_collection?: boolean;
   search?: string;
-  sort?: "newest" | "oldest" | "price_asc" | "price_desc";
+  stock_status?: "in_stock" | "low" | "out";
+  sort?: "newest" | "oldest" | "price_asc" | "price_desc" | "name_asc" | "stock_asc" | "stock_desc";
   page?: number;
   per_page?: number;
 }

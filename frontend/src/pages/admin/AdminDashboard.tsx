@@ -1,22 +1,50 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAdminStats } from "@/hooks/useOrders";
+import { useAdminStats, type RevenueRange } from "@/hooks/useOrders";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
+import { MonthlyRevenueChart } from "@/components/admin/MonthlyRevenueChart";
+import { Select } from "@/components/ui/Field";
 import { Spinner } from "@/components/ui/Spinner";
 import { AlertIcon, ClipboardIcon, PackageIcon } from "@/components/icons";
 import { formatDate, formatPrice } from "@/lib/format";
 
+const rangeOptions: { value: RevenueRange; label: string }[] = [
+  { value: "all_time", label: "All Time" },
+  { value: "this_month", label: "This Month" },
+  { value: "last_month", label: "Last Month" },
+  { value: "last_30_days", label: "Last 30 Days" },
+  { value: "this_year", label: "This Year" },
+];
+
 export function AdminDashboard() {
-  const { data: stats, isLoading } = useAdminStats();
+  const [range, setRange] = useState<RevenueRange>("all_time");
+  const { data: stats, isLoading } = useAdminStats(range);
 
   return (
-    <AdminLayout title="Dashboard">
+    <AdminLayout
+      title="Dashboard"
+      actions={
+        <Select
+          id="revenue-range"
+          value={range}
+          onChange={(e) => setRange(e.target.value as RevenueRange)}
+          className="w-auto"
+        >
+          {rangeOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </Select>
+      }
+    >
       {isLoading || !stats ? (
         <Spinner />
       ) : (
         <div className="space-y-10">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Revenue" value={formatPrice(stats.total_revenue)} />
+            <StatCard label={`Revenue · ${rangeOptions.find((o) => o.value === range)?.label}`} value={formatPrice(stats.total_revenue)} />
             <StatCard label="Orders" value={String(stats.total_orders)} />
             <StatCard
               label="Pending Orders"
@@ -24,6 +52,14 @@ export function AdminDashboard() {
               accent={stats.pending_orders > 0}
             />
             <StatCard label="Products" value={String(stats.total_products)} />
+          </div>
+
+          <div className="border border-line bg-cream p-5">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="font-display text-lg text-ink">Monthly Revenue</h2>
+              <p className="text-xs text-ink-soft">Last 12 months</p>
+            </div>
+            <MonthlyRevenueChart data={stats.monthly_revenue} />
           </div>
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -111,7 +147,7 @@ export function AdminDashboard() {
 function StatCard({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className="border border-line bg-cream p-5">
-      <p className="eyebrow mb-2">{label}</p>
+      <p className="eyebrow mb-2 truncate">{label}</p>
       <p className={`font-display text-3xl ${accent ? "text-rust" : "text-ink"}`}>{value}</p>
     </div>
   );
