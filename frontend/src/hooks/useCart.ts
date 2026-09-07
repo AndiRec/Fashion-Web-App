@@ -1,28 +1,40 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
+import { useGuestCartStore } from "@/store/guestCart";
 import type { CartItem, Product } from "@/lib/types";
 
 const CART_KEY = ["cart"];
 
 export function useCart() {
   const token = useAuthStore((s) => s.token);
-  return useQuery({
+  const guestItems = useGuestCartStore((s) => s.items);
+
+  const serverQuery = useQuery({
     queryKey: CART_KEY,
     queryFn: async () => (await api.get<CartItem[]>("/cart")).data,
     enabled: !!token,
   });
+
+  if (!token) {
+    return { ...serverQuery, data: guestItems, isLoading: false, isFetching: false };
+  }
+  return serverQuery;
 }
 
 function unitPriceOf(product: Product) {
   return product.is_on_sale ? product.sale_price : product.price;
 }
 
+type AddToCartVars = { productId: number; size: string; product?: Product };
+
 export function useAddToCart() {
+  const token = useAuthStore((s) => s.token);
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ productId, size }: { productId: number; size: string; product?: Product }) =>
-      (await api.post(`/cart/${productId}`, { size })).data,
+  const guestAddItem = useGuestCartStore((s) => s.addItem);
+
+  const serverMutation = useMutation({
+    mutationFn: async ({ productId, size }: AddToCartVars) => (await api.post(`/cart/${productId}`, { size })).data,
     onMutate: async ({ productId, size, product }) => {
       if (!product) return;
       await queryClient.cancelQueries({ queryKey: CART_KEY });
@@ -55,13 +67,28 @@ export function useAddToCart() {
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: CART_KEY }),
   });
+
+  return {
+    isPending: token ? serverMutation.isPending : false,
+    mutate: (vars: AddToCartVars, opts?: { onError?: (err: unknown) => void }) => {
+      if (!token) {
+        if (vars.product) guestAddItem(vars.product, vars.size);
+        return;
+      }
+      serverMutation.mutate(vars, opts);
+    },
+  };
 }
 
+type UpdateCartVars = { id: number; quantity: number };
+
 export function useUpdateCartItem() {
+  const token = useAuthStore((s) => s.token);
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, quantity }: { id: number; quantity: number }) =>
-      (await api.patch(`/cart/${id}`, { quantity })).data,
+  const guestUpdateQuantity = useGuestCartStore((s) => s.updateQuantity);
+
+  const serverMutation = useMutation({
+    mutationFn: async ({ id, quantity }: UpdateCartVars) => (await api.patch(`/cart/${id}`, { quantity })).data,
     onMutate: async ({ id, quantity }) => {
       await queryClient.cancelQueries({ queryKey: CART_KEY });
       const previous = queryClient.getQueryData<CartItem[]>(CART_KEY);
@@ -79,11 +106,25 @@ export function useUpdateCartItem() {
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: CART_KEY }),
   });
+
+  return {
+    isPending: token ? serverMutation.isPending : false,
+    mutate: (vars: UpdateCartVars, opts?: { onError?: (err: unknown) => void }) => {
+      if (!token) {
+        guestUpdateQuantity(vars.id, vars.quantity);
+        return;
+      }
+      serverMutation.mutate(vars, opts);
+    },
+  };
 }
 
 export function useRemoveCartItem() {
+  const token = useAuthStore((s) => s.token);
   const queryClient = useQueryClient();
-  return useMutation({
+  const guestRemoveItem = useGuestCartStore((s) => s.removeItem);
+
+  const serverMutation = useMutation({
     mutationFn: async (id: number) => (await api.delete(`/cart/${id}`)).data,
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: CART_KEY });
@@ -98,4 +139,15 @@ export function useRemoveCartItem() {
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: CART_KEY }),
   });
+
+  return {
+    isPending: token ? serverMutation.isPending : false,
+    mutate: (id: number, opts?: { onError?: (err: unknown) => void }) => {
+      if (!token) {
+        guestRemoveItem(id);
+        return;
+      }
+      serverMutation.mutate(id, opts);
+    },
+  };
 }

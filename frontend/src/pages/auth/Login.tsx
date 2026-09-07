@@ -13,6 +13,8 @@ export function Login() {
   const login = useLogin();
   const navigate = useNavigate();
   const location = useLocation();
+  const from = (location.state as { from?: Location })?.from;
+  const isCheckoutRedirect = from?.pathname === "/checkout";
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -21,7 +23,6 @@ export function Login() {
       { email, password },
       {
         onSuccess: () => {
-          const from = (location.state as { from?: Location })?.from;
           navigate(from ? `${from.pathname}${from.search}` : "/account", { replace: true });
         },
         onError: (err) => setError(getErrorMessage(err)),
@@ -30,7 +31,10 @@ export function Login() {
   }
 
   return (
-    <AuthLayout title="Sign In" subtitle="Welcome back to Aria Fashion">
+    <AuthLayout
+      title="Sign In"
+      subtitle={isCheckoutRedirect ? "Sign in to complete your order" : "Welcome back to Aria Fashion"}
+    >
       <form onSubmit={handleSubmit} className="space-y-5">
         <Input id="email" type="email" label="Email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         <Input id="password" type="password" label="Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
@@ -46,7 +50,7 @@ export function Login() {
       </form>
       <p className="mt-8 text-center text-sm text-ink-soft">
         New to Aria Fashion?{" "}
-        <Link to="/register" className="text-ink underline">
+        <Link to="/register" state={location.state} className="text-ink underline">
           Create an account
         </Link>
       </p>

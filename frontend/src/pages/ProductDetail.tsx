@@ -4,7 +4,6 @@ import { useProduct } from "@/hooks/useProducts";
 import { useAddToCart } from "@/hooks/useCart";
 import { useToggleWishlist, useWishlist } from "@/hooks/useWishlist";
 import { useBumpOnChange } from "@/hooks/useBump";
-import { useAuthStore } from "@/store/auth";
 import { useToastStore } from "@/store/toast";
 import { useUiStore } from "@/store/ui";
 import { getErrorMessage } from "@/lib/api";
@@ -22,7 +21,6 @@ export function ProductDetail() {
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
-  const token = useAuthStore((s) => s.token);
   const addToCart = useAddToCart();
   const toggleWishlist = useToggleWishlist();
   const { data: wishlist } = useWishlist();
@@ -69,10 +67,6 @@ export function ProductDetail() {
   const outOfStock = (product.total_stock ?? 0) <= 0;
 
   function handleAddToCart() {
-    if (!token) {
-      push("Please sign in to add items to your bag.", "error");
-      return;
-    }
     if (!selectedSize) {
       push("Please select a size.", "error");
       return;
@@ -88,10 +82,6 @@ export function ProductDetail() {
   }
 
   function handleWishlist() {
-    if (!token) {
-      push("Please sign in to save favorites.", "error");
-      return;
-    }
     if (!product) return;
     toggleWishlist.mutate(product, { onError: (err) => push(getErrorMessage(err), "error") });
   }

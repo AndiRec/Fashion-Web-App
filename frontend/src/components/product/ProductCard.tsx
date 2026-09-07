@@ -1,7 +1,6 @@
 import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
-import { useAuthStore } from "@/store/auth";
 import { useToggleWishlist, useWishlist } from "@/hooks/useWishlist";
 import { useToastStore } from "@/store/toast";
 import { useBumpOnChange } from "@/hooks/useBump";
@@ -12,7 +11,6 @@ import { categoryLabel } from "@/lib/format";
 import type { Product } from "@/lib/types";
 
 export function ProductCard({ product }: { product: Product }) {
-  const token = useAuthStore((s) => s.token);
   const { data: wishlist } = useWishlist();
   const toggleWishlist = useToggleWishlist();
   const push = useToastStore((s) => s.push);
@@ -24,10 +22,6 @@ export function ProductCard({ product }: { product: Product }) {
 
   function handleWishlist(e: MouseEvent) {
     e.preventDefault();
-    if (!token) {
-      push("Please sign in to save favorites.", "error");
-      return;
-    }
     toggleWishlist.mutate(product, {
       onError: (err) => push(getErrorMessage(err), "error"),
     });

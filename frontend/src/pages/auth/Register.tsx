@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, type Location, useLocation, useNavigate } from "react-router-dom";
 import { useRegister } from "@/hooks/useAuth";
 import { getErrorMessage } from "@/lib/api";
 import { AuthLayout } from "@/components/layout/AuthLayout";
@@ -11,18 +11,26 @@ export function Register() {
   const [error, setError] = useState<string | null>(null);
   const register = useRegister();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: Location })?.from;
+  const isCheckoutRedirect = from?.pathname === "/checkout";
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     register.mutate(form, {
-      onSuccess: () => navigate("/account", { replace: true }),
+      onSuccess: () => {
+        navigate(from ? `${from.pathname}${from.search}` : "/account", { replace: true });
+      },
       onError: (err) => setError(getErrorMessage(err)),
     });
   }
 
   return (
-    <AuthLayout title="Create Account" subtitle="Join Aria Fashion">
+    <AuthLayout
+      title="Create Account"
+      subtitle={isCheckoutRedirect ? "Create an account to complete your order" : "Join Aria Fashion"}
+    >
       <form onSubmit={handleSubmit} className="space-y-5">
         <Input id="name" label="Full Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         <Input id="phone" label="Phone" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
@@ -50,7 +58,7 @@ export function Register() {
       </form>
       <p className="mt-8 text-center text-sm text-ink-soft">
         Already have an account?{" "}
-        <Link to="/login" className="text-ink underline">
+        <Link to="/login" state={location.state} className="text-ink underline">
           Sign in
         </Link>
       </p>

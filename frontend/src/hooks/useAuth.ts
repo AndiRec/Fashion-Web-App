@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
+import { mergeGuestState } from "@/lib/mergeGuestState";
 import type { User } from "@/lib/types";
 
 interface AuthResponse {
@@ -14,8 +15,9 @@ export function useLogin() {
   return useMutation({
     mutationFn: async (input: { email: string; password: string }) =>
       (await api.post<AuthResponse>("/login", input)).data,
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setSession(data.user, data.token);
+      await mergeGuestState();
       queryClient.invalidateQueries();
     },
   });
@@ -34,8 +36,9 @@ export function useRegister() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: RegisterInput) => (await api.post<AuthResponse>("/register", input)).data,
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setSession(data.user, data.token);
+      await mergeGuestState();
       queryClient.invalidateQueries();
     },
   });

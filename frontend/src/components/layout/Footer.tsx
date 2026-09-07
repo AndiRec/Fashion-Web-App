@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useAuthStore } from "@/store/auth";
 
 export function Footer() {
+  const user = useAuthStore((s) => s.user);
+
   return (
     <footer className="border-t border-line bg-cream-soft">
       <div className="container-boutique grid grid-cols-2 gap-10 py-16 sm:grid-cols-4">
@@ -25,9 +28,17 @@ export function Footer() {
         <div>
           <h4 className="eyebrow mb-4">Account</h4>
           <ul className="space-y-2 text-sm text-ink-soft">
-            <li><Link to="/account" className="hover:text-ink">My Account</Link></li>
-            <li><Link to="/account/orders" className="hover:text-ink">Order History</Link></li>
-            <li><Link to="/login" className="hover:text-ink">Sign In</Link></li>
+            {user ? (
+              <>
+                <li><Link to="/account" className="hover:text-ink">My Account</Link></li>
+                <li><Link to="/account/orders" className="hover:text-ink">Order History</Link></li>
+              </>
+            ) : (
+              <>
+                <li><Link to="/login" className="hover:text-ink">Sign In</Link></li>
+                <li><Link to="/register" className="hover:text-ink">Create Account</Link></li>
+              </>
+            )}
           </ul>
         </div>
 
