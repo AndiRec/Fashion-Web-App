@@ -7,6 +7,7 @@ import { getErrorMessage } from "@/lib/api";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Input, Select, Textarea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { BackButton } from "@/components/ui/BackButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Spinner } from "@/components/ui/Spinner";
 import { categoryLabel } from "@/lib/format";
@@ -142,9 +143,7 @@ export function AdminProductForm() {
 
   return (
     <AdminLayout title={isEdit ? "Edit Product" : "Add Product"}>
-      <Link to="/admin/products" className="mb-6 inline-block text-xs text-ink-soft hover:text-ink">
-        ← Back to Products
-      </Link>
+      <BackButton fallback="/admin/products" label="Back to Products" className="mb-6" />
 
       <form onSubmit={handleSubmit} className="max-w-3xl space-y-6 pb-24">
         <SectionCard title="Details">

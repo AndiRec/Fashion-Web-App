@@ -16,18 +16,24 @@ export function Home() {
           alt="Aria Fashion new collection"
           className="absolute inset-0 h-full w-full object-cover object-top"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
-        <div className="container-boutique relative pb-16 text-cream">
-          <p className="eyebrow mb-3 text-cream/80">Struga, North Macedonia</p>
-          <h1 className="max-w-xl font-display text-5xl leading-tight sm:text-6xl">
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 via-45% to-transparent" />
+        <div className="container-boutique relative pb-16 text-cream [text-shadow:0_2px_16px_rgb(0_0_0_/_35%)]">
+          <p className="eyebrow mb-3 text-cream/90">Struga, North Macedonia</p>
+          <h1 className="max-w-xl font-display text-4xl leading-tight sm:text-5xl md:text-6xl">
             Effortless elegance, made for everyday.
           </h1>
-          <div className="mt-8 flex gap-4">
-            <Link to="/shop">
-              <Button size="lg">Shop the Collection</Button>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
+            <Link to="/shop" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto">
+                Shop the Collection
+              </Button>
             </Link>
-            <Link to="/shop?new_collection=1">
-              <Button size="lg" variant="outline" className="border-cream text-cream hover:bg-cream hover:text-ink">
+            <Link to="/shop?new_collection=1" className="w-full sm:w-auto">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full border-cream text-cream hover:bg-cream hover:text-ink sm:w-auto"
+              >
                 New In
               </Button>
             </Link>

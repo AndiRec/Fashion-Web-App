@@ -65,6 +65,14 @@ export function MenuIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function ChevronLeftIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base(props)}>
+      <path d="m15 6-6 6 6 6" />
+    </svg>
+  );
+}
+
 export function ChevronRightIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg {...base(props)}>
@@ -178,6 +186,17 @@ export function AlertIcon(props: SVGProps<SVGSVGElement>) {
       <path d="M12 9v4" />
       <path d="M10.29 3.86 1.82 18a1 1 0 0 0 .86 1.5h18.64a1 1 0 0 0 .86-1.5L13.71 3.86a1 1 0 0 0-1.72 0Z" />
       <path d="M12 16.5h.01" />
+    </svg>
+  );
+}
+
+export function SlidersIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h13M21 18h-1" />
+      <circle cx="16" cy="6" r="2" />
+      <circle cx="10" cy="12" r="2" />
+      <circle cx="19" cy="18" r="2" />
     </svg>
   );
 }

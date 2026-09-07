@@ -8,6 +8,7 @@ import { useToastStore } from "@/store/toast";
 import { getErrorMessage } from "@/lib/api";
 import { formatPrice } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
+import { BackButton } from "@/components/ui/BackButton";
 import { Input } from "@/components/ui/Field";
 import { Spinner } from "@/components/ui/Spinner";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -29,7 +30,8 @@ export function Checkout() {
 
   if (!cart || cart.length === 0) {
     return (
-      <div className="container-boutique">
+      <div className="container-boutique py-12">
+        <BackButton fallback="/cart" className="mb-5" />
         <EmptyState
           title="Your bag is empty"
           description="Add products to your bag before checking out."
@@ -65,6 +67,7 @@ export function Checkout() {
 
   return (
     <div className="container-boutique py-12">
+      <BackButton fallback="/cart" className="mb-5" />
       <h1 className="mb-10 text-3xl">Checkout</h1>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_360px]">

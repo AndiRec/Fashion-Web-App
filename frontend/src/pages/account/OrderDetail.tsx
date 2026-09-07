@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useCancelOrder, useOrder } from "@/hooks/useOrders";
 import { useToastStore } from "@/store/toast";
 import { getErrorMessage } from "@/lib/api";
@@ -6,6 +6,7 @@ import { AccountLayout } from "@/components/layout/AccountLayout";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
+import { BackButton } from "@/components/ui/BackButton";
 import { formatDate, formatPrice } from "@/lib/format";
 
 export function OrderDetail() {
@@ -21,9 +22,7 @@ export function OrderDetail() {
     <AccountLayout>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <Link to="/account/orders" className="text-xs text-ink-soft hover:text-ink">
-            ← Back to Orders
-          </Link>
+          <BackButton fallback="/account/orders" label="Back to Orders" />
           <h2 className="mt-2 font-display text-2xl">Order #{order.id}</h2>
           <p className="text-xs text-ink-soft">{formatDate(order.created_at)}</p>
         </div>

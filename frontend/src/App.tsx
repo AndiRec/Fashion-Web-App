@@ -2,6 +2,7 @@ import { Suspense, lazy, type ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { ProtectedRoute, AdminRoute } from "@/components/ProtectedRoute";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import { Spinner } from "@/components/ui/Spinner";
 
 import { Home } from "@/pages/Home";
@@ -42,52 +43,55 @@ function withSuspense(element: ReactNode) {
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/wishlist" element={<Wishlist />} />
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={<Wishlist />} />
 
-        <Route path="/login" element={withSuspense(<Login />)} />
-        <Route path="/register" element={withSuspense(<Register />)} />
-        <Route path="/forgot-password" element={withSuspense(<ForgotPassword />)} />
-        <Route path="/reset-password" element={withSuspense(<ResetPassword />)} />
+          <Route path="/login" element={withSuspense(<Login />)} />
+          <Route path="/register" element={withSuspense(<Register />)} />
+          <Route path="/forgot-password" element={withSuspense(<ForgotPassword />)} />
+          <Route path="/reset-password" element={withSuspense(<ResetPassword />)} />
 
-        <Route
-          path="/checkout"
-          element={<ProtectedRoute>{withSuspense(<Checkout />)}</ProtectedRoute>}
-        />
+          <Route
+            path="/checkout"
+            element={<ProtectedRoute>{withSuspense(<Checkout />)}</ProtectedRoute>}
+          />
 
-        <Route
-          path="/account"
-          element={<ProtectedRoute>{withSuspense(<Profile />)}</ProtectedRoute>}
-        />
-        <Route
-          path="/account/orders"
-          element={<ProtectedRoute>{withSuspense(<Orders />)}</ProtectedRoute>}
-        />
-        <Route
-          path="/account/orders/:id"
-          element={<ProtectedRoute>{withSuspense(<OrderDetail />)}</ProtectedRoute>}
-        />
-        <Route
-          path="/account/addresses"
-          element={<ProtectedRoute>{withSuspense(<Addresses />)}</ProtectedRoute>}
-        />
+          <Route
+            path="/account"
+            element={<ProtectedRoute>{withSuspense(<Profile />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/account/orders"
+            element={<ProtectedRoute>{withSuspense(<Orders />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/account/orders/:id"
+            element={<ProtectedRoute>{withSuspense(<OrderDetail />)}</ProtectedRoute>}
+          />
+          <Route
+            path="/account/addresses"
+            element={<ProtectedRoute>{withSuspense(<Addresses />)}</ProtectedRoute>}
+          />
 
-        <Route path="*" element={<NotFound />} />
-      </Route>
+          <Route path="*" element={<NotFound />} />
+        </Route>
 
-      {/* Admin routes render their own full-page (sidebar) chrome, not the storefront Layout. */}
-      <Route path="/admin" element={<AdminRoute>{withSuspense(<AdminDashboard />)}</AdminRoute>} />
-      <Route path="/admin/products" element={<AdminRoute>{withSuspense(<AdminProducts />)}</AdminRoute>} />
-      <Route path="/admin/products/new" element={<AdminRoute>{withSuspense(<AdminProductForm />)}</AdminRoute>} />
-      <Route path="/admin/products/:id/edit" element={<AdminRoute>{withSuspense(<AdminProductForm />)}</AdminRoute>} />
-      <Route path="/admin/orders" element={<AdminRoute>{withSuspense(<AdminOrders />)}</AdminRoute>} />
-      <Route path="/admin/orders/:id" element={<AdminRoute>{withSuspense(<AdminOrderDetail />)}</AdminRoute>} />
-    </Routes>
+        {/* Admin routes render their own full-page (sidebar) chrome, not the storefront Layout. */}
+        <Route path="/admin" element={<AdminRoute>{withSuspense(<AdminDashboard />)}</AdminRoute>} />
+        <Route path="/admin/products" element={<AdminRoute>{withSuspense(<AdminProducts />)}</AdminRoute>} />
+        <Route path="/admin/products/new" element={<AdminRoute>{withSuspense(<AdminProductForm />)}</AdminRoute>} />
+        <Route path="/admin/products/:id/edit" element={<AdminRoute>{withSuspense(<AdminProductForm />)}</AdminRoute>} />
+        <Route path="/admin/orders" element={<AdminRoute>{withSuspense(<AdminOrders />)}</AdminRoute>} />
+        <Route path="/admin/orders/:id" element={<AdminRoute>{withSuspense(<AdminOrderDetail />)}</AdminRoute>} />
+      </Routes>
+    </>
   );
 }

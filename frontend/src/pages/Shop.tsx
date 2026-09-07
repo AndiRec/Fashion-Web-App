@@ -7,7 +7,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { ProductGridSkeleton } from "@/components/ui/Skeleton";
 import { Select } from "@/components/ui/Field";
 import { categoryLabel } from "@/lib/format";
-import { XIcon } from "@/components/icons";
+import { SlidersIcon, XIcon } from "@/components/icons";
 
 function filtersFromParams(params: URLSearchParams): Filters {
   return {
@@ -64,26 +64,30 @@ export function Shop() {
 
   return (
     <div className="container-boutique py-12">
-      <div className="mb-10 flex items-end justify-between border-b border-line pb-6">
-        <div>
-          <p className="eyebrow mb-2">Shop</p>
+      <div className="mb-8 border-b border-line pb-6">
+        <p className="eyebrow mb-2">Shop</p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl">All Products</h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="text-xs uppercase tracking-wider text-ink-soft lg:hidden" onClick={() => setMobileFiltersOpen(true)}>
-            Filters
-          </button>
-          <Select
-            id="sort"
-            value={filters.sort ?? "newest"}
-            onChange={(e) => updateFilters({ ...filters, sort: e.target.value as Filters["sort"], page: 1 })}
-            className="w-auto"
-          >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-          </Select>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMobileFiltersOpen(true)}
+              className="press flex items-center gap-1.5 border border-line px-3 py-2 text-xs uppercase tracking-wider text-ink-soft hover:border-ink hover:text-ink lg:hidden"
+            >
+              <SlidersIcon width={14} height={14} />
+              Filters
+            </button>
+            <Select
+              id="sort"
+              value={filters.sort ?? "newest"}
+              onChange={(e) => updateFilters({ ...filters, sort: e.target.value as Filters["sort"], page: 1 })}
+              className="w-auto"
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -139,8 +143,8 @@ export function Shop() {
           <div className="animate-slide-in-left h-full w-80 overflow-y-auto bg-cream p-6" onClick={(e) => e.stopPropagation()}>
             <div className="mb-6 flex items-center justify-between">
               <h3 className="font-display text-xl">Filters</h3>
-              <button onClick={() => setMobileFiltersOpen(false)} className="text-xs uppercase text-ink-soft">
-                Close
+              <button onClick={() => setMobileFiltersOpen(false)} aria-label="Close filters" className="press text-ink-soft">
+                <XIcon width={18} height={18} />
               </button>
             </div>
             <ProductFilters filters={filters} onChange={updateFilters} />

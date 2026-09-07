@@ -4,6 +4,7 @@ import { useToastStore } from "@/store/toast";
 import { getErrorMessage } from "@/lib/api";
 import { formatPrice } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
+import { BackButton } from "@/components/ui/BackButton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Spinner } from "@/components/ui/Spinner";
 import { MinusIcon, PlusIcon, TrashIcon } from "@/components/icons";
@@ -18,7 +19,8 @@ export function Cart() {
 
   if (!cart || cart.length === 0) {
     return (
-      <div className="container-boutique">
+      <div className="container-boutique py-12">
+        <BackButton fallback="/shop" className="mb-5" />
         <EmptyState
           title="Your bag is empty"
           description="Explore the collection and find something you love."
@@ -36,6 +38,7 @@ export function Cart() {
 
   return (
     <div className="container-boutique py-12">
+      <BackButton fallback="/shop" className="mb-5" />
       <h1 className="mb-10 text-3xl">Your Bag</h1>
 
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_360px]">

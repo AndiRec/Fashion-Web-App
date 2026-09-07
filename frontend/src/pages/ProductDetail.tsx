@@ -10,6 +10,7 @@ import { getErrorMessage } from "@/lib/api";
 import { categoryLabel } from "@/lib/format";
 import { PriceTag } from "@/components/product/PriceTag";
 import { Button } from "@/components/ui/Button";
+import { BackButton } from "@/components/ui/BackButton";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { HeartIcon } from "@/components/icons";
@@ -88,7 +89,10 @@ export function ProductDetail() {
 
   return (
     <div className="container-boutique py-12">
-      <nav className="mb-8 text-xs text-ink-soft">
+      <div className="mb-5">
+        <BackButton fallback="/shop" />
+      </div>
+      <nav className="mb-8 hidden text-xs text-ink-soft sm:block">
         <Link to="/shop" className="hover:text-ink">
           Shop
         </Link>

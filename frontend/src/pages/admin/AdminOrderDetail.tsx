@@ -4,6 +4,7 @@ import { useToastStore } from "@/store/toast";
 import { getErrorMessage } from "@/lib/api";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Select } from "@/components/ui/Field";
+import { BackButton } from "@/components/ui/BackButton";
 import { Spinner } from "@/components/ui/Spinner";
 import { formatDate, formatPrice } from "@/lib/format";
 import type { OrderStatus } from "@/lib/types";
@@ -22,9 +23,7 @@ export function AdminOrderDetail() {
         <Spinner />
       ) : (
         <div className="max-w-4xl">
-          <Link to="/admin/orders" className="mb-6 inline-block text-xs text-ink-soft hover:text-ink">
-            ← Back to Orders
-          </Link>
+          <BackButton fallback="/admin/orders" label="Back to Orders" className="mb-6" />
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px]">
             <div>
