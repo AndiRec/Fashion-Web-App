@@ -22,8 +22,12 @@ export function Login() {
     login.mutate(
       { email, password },
       {
-        onSuccess: () => {
-          navigate(from ? `${from.pathname}${from.search}` : "/account", { replace: true });
+        onSuccess: (data) => {
+          if (from) {
+            navigate(`${from.pathname}${from.search}`, { replace: true });
+          } else {
+            navigate(data.user.is_admin ? "/admin" : "/account", { replace: true });
+          }
         },
         onError: (err) => setError(getErrorMessage(err)),
       },
