@@ -1,6 +1,5 @@
-import { type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes, forwardRef } from "react";
+import { type InputHTMLAttributes, type TextareaHTMLAttributes, forwardRef } from "react";
 import clsx from "clsx";
-import { ChevronDownIcon } from "@/components/icons";
 
 const fieldClass =
   "w-full border border-line bg-cream-soft px-4 py-3 text-sm text-ink placeholder:text-ink-soft/50 focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink/10 transition-colors";
@@ -43,31 +42,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
 );
 Textarea.displayName = "Textarea";
 
-export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement> & WrapperProps>(
-  ({ label, error, id, className, children, ...props }, ref) => (
-    <div className="w-full">
-      {label ? (
-        <label htmlFor={id} className="mb-1.5 block text-xs uppercase tracking-wider text-ink-soft">
-          {label}
-        </label>
-      ) : null}
-      <div className="relative">
-        <select
-          id={id}
-          ref={ref}
-          className={clsx(fieldClass, "cursor-pointer appearance-none pr-9", error && "border-rust", className)}
-          {...props}
-        >
-          {children}
-        </select>
-        <ChevronDownIcon
-          width={14}
-          height={14}
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft"
-        />
-      </div>
-      {error ? <p className="mt-1 text-xs text-rust">{error}</p> : null}
-    </div>
-  ),
-);
-Select.displayName = "Select";
+// The dropdown/listbox lives in its own file since it's a real interactive
+// widget (custom-styled, not a native <select>) rather than a thin wrapper —
+// re-exported here so every existing `import { Select } from ".../Field"` and
+// its call sites need no changes beyond the onChange signature.
+export { Select } from "@/components/ui/Select";

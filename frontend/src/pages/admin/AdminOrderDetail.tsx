@@ -66,20 +66,19 @@ export function AdminOrderDetail() {
                 <Select
                   id="order-status"
                   value={order.status}
-                  onChange={(e) =>
+                  onChange={(v) =>
                     updateStatus.mutate(
-                      { id: order.id, status: e.target.value as OrderStatus },
+                      { id: order.id, status: v as OrderStatus },
                       {
                         onSuccess: () => push("Order status updated."),
                         onError: (err) => push(getErrorMessage(err), "error"),
                       },
                     )
                   }
-                  className="capitalize"
                 >
                   {statuses.map((s) => (
                     <option key={s} value={s}>
-                      {s}
+                      {s.charAt(0).toUpperCase() + s.slice(1)}
                     </option>
                   ))}
                 </Select>

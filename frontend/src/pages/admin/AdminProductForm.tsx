@@ -173,17 +173,17 @@ export function AdminProductForm() {
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
             />
-            <Select id="category" label="Category" required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+            <Select id="category" label="Category" required value={form.category} onChange={(v) => setForm({ ...form, category: v })}>
               {meta?.categories.map((c) => (
                 <option key={c} value={c}>
                   {categoryLabel(c)}
                 </option>
               ))}
             </Select>
-            <Select id="color" label="Color" required value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })}>
+            <Select id="color" label="Color" required value={form.color} onChange={(v) => setForm({ ...form, color: v })}>
               {meta?.colors.map((c) => (
-                <option key={c} value={c} className="capitalize">
-                  {c}
+                <option key={c} value={c}>
+                  {c.charAt(0).toUpperCase() + c.slice(1)}
                 </option>
               ))}
             </Select>

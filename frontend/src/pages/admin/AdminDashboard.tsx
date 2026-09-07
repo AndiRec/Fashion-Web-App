@@ -28,7 +28,7 @@ export function AdminDashboard() {
         <Select
           id="revenue-range"
           value={range}
-          onChange={(e) => setRange(e.target.value as RevenueRange)}
+          onChange={(v) => setRange(v as RevenueRange)}
           className="w-auto"
         >
           {rangeOptions.map((opt) => (

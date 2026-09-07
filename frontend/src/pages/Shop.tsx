@@ -79,7 +79,7 @@ export function Shop() {
             <Select
               id="sort"
               value={filters.sort ?? "newest"}
-              onChange={(e) => updateFilters({ ...filters, sort: e.target.value as Filters["sort"], page: 1 })}
+              onChange={(v) => updateFilters({ ...filters, sort: v as Filters["sort"], page: 1 })}
               className="w-auto"
             >
               <option value="newest">Newest</option>

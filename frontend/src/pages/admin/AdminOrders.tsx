@@ -44,15 +44,15 @@ export function AdminOrders() {
         <Select
           id="status-filter"
           value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value as OrderStatus | "");
+          onChange={(v) => {
+            setStatusFilter(v as OrderStatus | "");
             setPage(1);
           }}
           className="w-auto"
         >
           <option value="">All Statuses</option>
           {statuses.map((s) => (
-            <option key={s} value={s} className="capitalize">
+            <option key={s} value={s}>
               {s.charAt(0).toUpperCase() + s.slice(1)}
             </option>
           ))}
@@ -99,20 +99,20 @@ export function AdminOrders() {
                     <Select
                       id={`status-${order.id}`}
                       value={order.status}
-                      onChange={(e) =>
+                      onChange={(v) =>
                         updateStatus.mutate(
-                          { id: order.id, status: e.target.value as OrderStatus },
+                          { id: order.id, status: v as OrderStatus },
                           {
                             onSuccess: () => push("Order status updated."),
                             onError: (err) => push(getErrorMessage(err), "error"),
                           },
                         )
                       }
-                      className="w-auto py-2 text-xs capitalize"
+                      className="w-auto py-2 text-xs"
                     >
                       {statuses.map((s) => (
                         <option key={s} value={s}>
-                          {s}
+                          {s.charAt(0).toUpperCase() + s.slice(1)}
                         </option>
                       ))}
                     </Select>

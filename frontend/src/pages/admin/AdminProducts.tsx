@@ -108,8 +108,8 @@ export function AdminProducts() {
         <Select
           id="category-filter"
           value={category}
-          onChange={(e) => {
-            setCategory(e.target.value);
+          onChange={(v) => {
+            setCategory(v);
             setPage(1);
           }}
           className="w-auto"
@@ -125,8 +125,8 @@ export function AdminProducts() {
         <Select
           id="stock-filter"
           value={stockStatus}
-          onChange={(e) => {
-            setStockStatus(e.target.value as NonNullable<ProductFilters["stock_status"]> | "");
+          onChange={(v) => {
+            setStockStatus(v as NonNullable<ProductFilters["stock_status"]> | "");
             setPage(1);
           }}
           className="w-auto"
@@ -141,7 +141,7 @@ export function AdminProducts() {
         <Select
           id="sort-filter"
           value={sort}
-          onChange={(e) => setSort(e.target.value as NonNullable<ProductFilters["sort"]>)}
+          onChange={(v) => setSort(v as NonNullable<ProductFilters["sort"]>)}
           className="w-auto"
         >
           {sortOptions.map((opt) => (
