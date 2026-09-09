@@ -23,17 +23,15 @@ class ProductSeeder extends Seeder
 
         $catalog = [
             ['name' => 'Cornflower Tailored Blazer', 'category' => 'coat', 'color' => 'blue', 'price' => 4200, 'image' => 'lookbook-blazer-blue.jpg', 'new' => true],
-            ['name' => 'Charcoal Button Vest', 'category' => 'top', 'color' => 'black', 'price' => 2400, 'image' => 'lookbook-vest-charcoal.jpg'],
             ['name' => 'Golden Hour Eyelet Dress', 'category' => 'dress', 'color' => 'white', 'price' => 2900, 'image' => 'lookbook-dress-yellow.jpg', 'new' => true, 'sale' => 20],
             ['name' => 'Struga Safari Belted Dress', 'category' => 'dress', 'color' => 'white', 'price' => 3100, 'image' => 'lookbook-dress-safari.jpg'],
             ['name' => 'Blush Satin Cropped Blazer', 'category' => 'coat', 'color' => 'white', 'price' => 4600, 'image' => 'lookbook-blazer-blush.jpg', 'sale' => 15],
             ['name' => 'Pleated Satin Midi Skirt', 'category' => 'skirt', 'color' => 'black', 'price' => 1900, 'new' => true],
             ['name' => 'Ohrid Linen Wrap Skirt', 'category' => 'skirt', 'color' => 'green', 'price' => 1650],
             ['name' => 'Cotton Poplin Blouse', 'category' => 'blouse', 'color' => 'white', 'price' => 1450, 'sale' => 25],
-            ['name' => 'Ribbed Essential Tee', 'category' => 'tshirt', 'color' => 'white', 'price' => 850],
+            ['name' => 'Ribbed Essential Tee', 'category' => 'tshirt', 'color' => 'white', 'price' => 850, 'new' => true],
             ['name' => 'Wide Leg Tailored Trousers', 'category' => 'pants', 'color' => 'black', 'price' => 2400, 'new' => true],
             ['name' => 'Fitted Bodycon Dress', 'category' => 'bodycon', 'color' => 'red', 'price' => 2600, 'sale' => 30],
-            ['name' => 'Silk Twill Headscarf', 'category' => 'accessory', 'color' => 'green', 'price' => 690],
         ];
 
         Storage::disk('public')->makeDirectory('products');
