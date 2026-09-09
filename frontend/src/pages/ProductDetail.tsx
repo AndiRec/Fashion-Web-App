@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useProduct } from "@/hooks/useProducts";
 import { useAddToCart } from "@/hooks/useCart";
@@ -21,6 +21,20 @@ export function ProductDetail() {
   const { data: product, isLoading } = useProduct(id);
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
+
+  function scrollToImage(index: number) {
+    const el = galleryRef.current;
+    if (!el) return;
+    el.scrollTo({ left: index * el.clientWidth, behavior: "smooth" });
+    setActiveImage(index);
+  }
+
+  function handleGalleryScroll() {
+    const el = galleryRef.current;
+    if (!el || el.clientWidth === 0) return;
+    setActiveImage(Math.round(el.scrollLeft / el.clientWidth));
+  }
 
   const addToCart = useAddToCart();
   const toggleWishlist = useToggleWishlist();
@@ -102,25 +116,54 @@ export function ProductDetail() {
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <div>
-          <div className="aspect-[3/4] w-full overflow-hidden bg-mist">
-            {product.images[activeImage] ? (
-              <img src={product.images[activeImage].url} alt={product.name} className="h-full w-full object-cover" />
+          <div
+            ref={galleryRef}
+            onScroll={handleGalleryScroll}
+            className="flex aspect-[3/4] w-full snap-x snap-mandatory overflow-x-auto scroll-smooth bg-mist [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {product.images.length > 0 ? (
+              product.images.map((img) => (
+                <div key={img.id} className="w-full flex-shrink-0 snap-center">
+                  <img src={img.url} alt={product.name} className="h-full w-full object-cover" />
+                </div>
+              ))
             ) : (
-              <div className="flex h-full items-center justify-center text-ink-soft/40">Aria Fashion</div>
+              <div className="flex w-full flex-shrink-0 snap-center items-center justify-center text-ink-soft/40">
+                Aria Fashion
+              </div>
             )}
           </div>
+
           {product.images.length > 1 ? (
-            <div className="mt-3 flex gap-3">
-              {product.images.map((img, i) => (
-                <button
-                  key={img.id}
-                  onClick={() => setActiveImage(i)}
-                  className={clsx("h-20 w-16 overflow-hidden border", i === activeImage ? "border-ink" : "border-transparent")}
-                >
-                  <img src={img.url} alt="" className="h-full w-full object-cover" />
-                </button>
-              ))}
-            </div>
+            <>
+              {/* Swipe position dots — mobile */}
+              <div className="mt-3 flex justify-center gap-1.5 sm:hidden">
+                {product.images.map((img, i) => (
+                  <button
+                    key={img.id}
+                    onClick={() => scrollToImage(i)}
+                    aria-label={`View photo ${i + 1} of ${product.images.length}`}
+                    className={clsx(
+                      "h-1.5 rounded-full transition-all duration-200",
+                      i === activeImage ? "w-6 bg-ink" : "w-1.5 bg-ink/25",
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* Click-to-jump thumbnails — desktop */}
+              <div className="mt-3 hidden gap-3 sm:flex">
+                {product.images.map((img, i) => (
+                  <button
+                    key={img.id}
+                    onClick={() => scrollToImage(i)}
+                    className={clsx("h-20 w-16 overflow-hidden border", i === activeImage ? "border-ink" : "border-transparent")}
+                  >
+                    <img src={img.url} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </>
           ) : null}
         </div>
 
