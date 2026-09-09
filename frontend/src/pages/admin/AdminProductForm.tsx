@@ -76,9 +76,19 @@ export function AdminProductForm() {
 
   if (isEdit && isLoading) return <Spinner className="min-h-screen" />;
 
+  const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
   function addFiles(fileList: FileList | null) {
     if (!fileList) return;
-    setNewFiles((prev) => [...prev, ...Array.from(fileList)]);
+    const files = Array.from(fileList);
+    const tooBig = files.filter((f) => f.size > MAX_IMAGE_BYTES);
+    const ok = files.filter((f) => f.size <= MAX_IMAGE_BYTES);
+    if (tooBig.length > 0) {
+      push(`${tooBig.map((f) => f.name).join(", ")} — over 10MB, not added.`, "error");
+    }
+    if (ok.length > 0) {
+      setNewFiles((prev) => [...prev, ...ok]);
+    }
   }
 
   function removeNewFile(index: number) {
@@ -297,7 +307,7 @@ export function AdminProductForm() {
             <p className="text-sm text-ink-soft">
               <span className="text-ink underline">Choose files</span> or drag and drop
             </p>
-            <p className="text-xs text-ink-soft/70">PNG or JPG, up to 2MB each</p>
+            <p className="text-xs text-ink-soft/70">PNG or JPG, up to 10MB each</p>
             <input
               type="file"
               accept="image/*"

@@ -3,7 +3,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { WishlistDrawer } from "@/components/layout/WishlistDrawer";
-import { Toaster } from "@/components/Toaster";
 
 export function Layout() {
   return (
@@ -15,7 +14,6 @@ export function Layout() {
       <Footer />
       <CartDrawer />
       <WishlistDrawer />
-      <Toaster />
     </div>
   );
 }

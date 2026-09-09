@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import { ProtectedRoute, AdminRoute } from "@/components/ProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { Spinner } from "@/components/ui/Spinner";
+import { Toaster } from "@/components/Toaster";
 
 import { Home } from "@/pages/Home";
 import { Shop } from "@/pages/Shop";
@@ -45,6 +46,7 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
+      <Toaster />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
