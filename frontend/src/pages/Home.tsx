@@ -31,8 +31,8 @@ export function Home() {
             <Link to="/shop?new_collection=1" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                variant="outline"
-                className="w-full border-cream text-cream hover:bg-cream hover:text-ink sm:w-auto"
+                variant="ghost"
+                className="w-full border border-cream bg-cream text-ink hover:bg-cream/90 sm:w-auto"
               >
                 New In
               </Button>

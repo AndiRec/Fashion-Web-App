@@ -50,13 +50,13 @@ export function Header() {
         Boutique in Struga — free local pickup on every order
       </div>
 
-      <div className="container-boutique flex h-20 items-center justify-between">
+      <div className="container-boutique grid h-20 grid-cols-[auto_1fr_auto] items-center gap-4 lg:flex lg:justify-between">
         <button className="press lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
           <MenuIcon />
         </button>
 
-        <Link to="/" className="flex items-center gap-2">
-          <img src="/images/ariafashion.png" alt="Aria Fashion" className="h-9 w-auto sm:h-11" />
+        <Link to="/" className="flex items-center justify-self-center gap-2 lg:justify-self-auto">
+          <img src="/images/ariafashion.png" alt="Aria Fashion" className="h-11 w-auto sm:h-14" />
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">

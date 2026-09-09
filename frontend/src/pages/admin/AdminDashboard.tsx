@@ -43,7 +43,7 @@ export function AdminDashboard() {
         <Spinner />
       ) : (
         <div className="space-y-10">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             <StatCard label={`Revenue · ${rangeOptions.find((o) => o.value === range)?.label}`} value={formatPrice(stats.total_revenue)} />
             <StatCard label="Orders" value={String(stats.total_orders)} />
             <StatCard
@@ -146,9 +146,9 @@ export function AdminDashboard() {
 
 function StatCard({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="border border-line bg-cream p-5">
+    <div className="border border-line bg-cream p-4 sm:p-5">
       <p className="eyebrow mb-2 truncate">{label}</p>
-      <p className={`font-display text-3xl ${accent ? "text-rust" : "text-ink"}`}>{value}</p>
+      <p className={`font-display text-2xl sm:text-3xl ${accent ? "text-rust" : "text-ink"}`}>{value}</p>
     </div>
   );
 }
