@@ -226,7 +226,7 @@ export function AdminProductForm() {
         </SectionCard>
 
         <SectionCard title="Stock by Size">
-          <div className="grid grid-cols-5 gap-3">
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
             {meta?.sizes.map((size) => (
               <div key={size}>
                 <label className="mb-1 block text-xs text-ink-soft">{size}</label>

@@ -61,7 +61,7 @@ class ProductSeeder extends Seeder
                 }
             }
 
-            foreach (['XS', 'S', 'M', 'L', 'XL'] as $size) {
+            foreach (['32', '34', '36', '38', '40', '42', '44', '46', '48', '50'] as $size) {
                 $product->variants()->create([
                     'size' => $size,
                     'stock' => random_int(0, 20),

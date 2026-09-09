@@ -11,7 +11,7 @@ export type Category =
 
 export type Color = "red" | "blue" | "green" | "black" | "white";
 
-export type Size = "XS" | "S" | "M" | "L" | "XL";
+export type Size = "32" | "34" | "36" | "38" | "40" | "42" | "44" | "46" | "48" | "50";
 
 export type OrderStatus = "pending" | "shipped" | "delivered" | "canceled";
 

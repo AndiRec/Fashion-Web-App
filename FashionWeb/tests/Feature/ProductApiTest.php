@@ -39,7 +39,7 @@ class ProductApiTest extends TestCase
             'price' => 1000,
             'category' => 'dress',
             'color' => 'black',
-            'sizes' => ['S' => 5, 'M' => 5],
+            'sizes' => ['38' => 5, '40' => 5],
         ]);
 
         $response->assertCreated();
