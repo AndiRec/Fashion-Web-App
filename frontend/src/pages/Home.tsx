@@ -32,7 +32,7 @@ export function Home() {
               <Button
                 size="lg"
                 variant="ghost"
-                className="w-full border border-cream bg-cream text-ink hover:bg-cream/90 sm:w-auto"
+                className="w-full border border-white text-white hover:bg-white hover:text-ink sm:w-auto"
               >
                 New In
               </Button>

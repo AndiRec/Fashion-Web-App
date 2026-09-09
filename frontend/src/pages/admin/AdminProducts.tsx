@@ -158,7 +158,80 @@ export function AdminProducts() {
         ) : null}
       </div>
 
-      <div className="overflow-x-auto border border-line bg-cream">
+      {/* Mobile: card list with full-width edit/delete buttons instead of a cramped scrolling table */}
+      <div className="space-y-3 sm:hidden">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-32 animate-pulse border border-line bg-cream" />
+          ))
+        ) : data?.data.length === 0 ? (
+          <div className="border border-line bg-cream">
+            <EmptyState
+              title="No products found"
+              description={hasActiveFilters ? "Try a different search or filter." : "Add your first product."}
+            />
+          </div>
+        ) : (
+          data?.data.map((product) => {
+            const stock = product.total_stock ?? 0;
+            return (
+              <div key={product.id} className={clsx("border border-line bg-cream p-4", isFetching && "opacity-60")}>
+                <div className="flex gap-3">
+                  <div className="flex h-16 w-14 flex-shrink-0 items-center justify-center bg-mist text-ink-soft/40">
+                    {product.images[0] ? (
+                      <img src={product.images[0].url} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <PackageIcon width={18} height={18} />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm text-ink">{product.name}</p>
+                    <p className="text-xs text-ink-soft">
+                      {categoryLabel(product.category)} · {formatPrice(product.price)}
+                    </p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      <span
+                        className={clsx(
+                          "text-xs font-medium",
+                          stock === 0 ? "text-rust" : stock <= 10 ? "text-taupe-dark" : "text-ink-soft",
+                        )}
+                      >
+                        {stock} in stock
+                      </span>
+                      {product.new_collection ? (
+                        <span className="bg-ink px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-cream">New</span>
+                      ) : null}
+                      {product.is_on_sale ? (
+                        <span className="bg-rust px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-cream">Sale</span>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 flex gap-2 border-t border-line pt-3">
+                  <Link to={`/admin/products/${product.id}/edit`} className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full">
+                      <EditIcon width={14} height={14} />
+                      Edit
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 border-rust text-rust hover:bg-rust hover:text-cream"
+                    onClick={() => setPendingDelete(product)}
+                  >
+                    <TrashIcon width={14} height={14} />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop / tablet: full table */}
+      <div className="hidden overflow-x-auto border border-line bg-cream sm:block">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-line bg-cream-soft text-xs uppercase tracking-wider text-ink-soft">
             <tr>
