@@ -17,10 +17,6 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        if (Product::count() > 0) {
-            return;
-        }
-
         $catalog = [
             ['name' => 'Cornflower Tailored Blazer', 'category' => 'coat', 'color' => 'blue', 'price' => 4200, 'image' => 'lookbook-blazer-blue.jpg', 'new' => true],
             ['name' => 'Golden Hour Eyelet Dress', 'category' => 'dress', 'color' => 'white', 'price' => 2900, 'image' => 'lookbook-dress-yellow.jpg', 'new' => true, 'sale' => 20],
@@ -35,6 +31,28 @@ class ProductSeeder extends Seeder
         ];
 
         Storage::disk('public')->makeDirectory('products');
+
+        // Re-copy the git-tracked lookbook photos into storage on every boot,
+        // independent of the "already seeded?" check below. Deploy platforms
+        // give each new container a fresh, empty filesystem, but the database
+        // (a separate persistent service) still remembers products from a
+        // previous boot -- without this, a redeploy leaves product rows
+        // pointing at image files that no longer exist on disk.
+        foreach ($catalog as $data) {
+            if (!isset($data['image'])) {
+                continue;
+            }
+
+            $source = public_path('images/'.$data['image']);
+
+            if (File::exists($source)) {
+                Storage::disk('public')->put('products/'.$data['image'], File::get($source));
+            }
+        }
+
+        if (Product::count() > 0) {
+            return;
+        }
 
         foreach ($catalog as $data) {
             $product = Product::create([
