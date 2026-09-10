@@ -14,7 +14,8 @@ export function Home() {
         <img
           src="/images/aria2.jpeg"
           alt="Aria Fashion boutique interior"
-          className="absolute inset-0 h-full w-full object-cover object-top"
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: "50% 20%" }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 via-45% to-transparent" />
         <div className="container-boutique relative pb-16 text-cream [text-shadow:0_2px_16px_rgb(0_0_0_/_35%)]">
