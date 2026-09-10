@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -39,7 +40,20 @@ class OrderController extends Controller
             'status' => 'required|string|in:pending,shipped,delivered,canceled',
         ]);
 
-        $order->update(['status' => $request->status]);
+        $newStatus = $request->string('status')->toString();
+
+        if ($newStatus === 'canceled' && $order->status !== 'canceled') {
+            DB::transaction(function () use ($order, $newStatus) {
+                foreach ($order->items as $item) {
+                    $variant = $item->product->variants()->where('size', $item->size)->first();
+                    $variant?->increment('stock', $item->quantity);
+                }
+
+                $order->update(['status' => $newStatus]);
+            });
+        } else {
+            $order->update(['status' => $newStatus]);
+        }
 
         return new OrderResource($order->load(['user', 'items.product.productImages', 'items.product.variants', 'address']));
     }

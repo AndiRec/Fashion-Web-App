@@ -26,7 +26,7 @@ export function useProducts(filters: ProductFilters) {
 
 export function useProduct(id: number | string | undefined) {
   return useQuery({
-    queryKey: ["products", id],
+    queryKey: ["products", Number(id)],
     queryFn: async () => (await api.get<Product>(`/products/${id}`)).data,
     enabled: id !== undefined,
   });
@@ -74,6 +74,7 @@ export function useDeleteProductImage() {
     mutationFn: async ({ productId, imageId }: { productId: number; imageId: number }) =>
       (await api.delete(`/products/${productId}/images/${imageId}`)).data,
     onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["products", variables.productId] });
     },
   });

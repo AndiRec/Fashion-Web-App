@@ -38,7 +38,6 @@ export function AdminProductForm() {
     description: "",
     price: "",
     category: "",
-    color: "",
     is_on_sale: false,
     sale_percentage: "",
     new_collection: false,
@@ -55,7 +54,6 @@ export function AdminProductForm() {
         description: product.description,
         price: String(product.price),
         category: product.category,
-        color: product.color,
         is_on_sale: product.is_on_sale,
         sale_percentage: product.discount_percentage ? String(product.discount_percentage) : "",
         new_collection: product.new_collection,
@@ -67,7 +65,7 @@ export function AdminProductForm() {
   useEffect(() => {
     if (!isEdit && meta) {
       setSizes((prev) => (Object.keys(prev).length ? prev : Object.fromEntries(meta.sizes.map((s) => [s, "0"]))));
-      setForm((prev) => ({ ...prev, category: prev.category || meta.categories[0], color: prev.color || meta.colors[0] }));
+      setForm((prev) => ({ ...prev, category: prev.category || meta.categories[0] }));
     }
   }, [meta, isEdit]);
 
@@ -107,7 +105,6 @@ export function AdminProductForm() {
     data.append("description", form.description);
     data.append("price", form.price);
     data.append("category", form.category);
-    data.append("color", form.color);
     data.append("is_on_sale", form.is_on_sale ? "1" : "0");
     if (form.is_on_sale) data.append("sale_percentage", form.sale_percentage);
     data.append("new_collection", form.new_collection ? "1" : "0");
@@ -187,13 +184,6 @@ export function AdminProductForm() {
               {meta?.categories.map((c) => (
                 <option key={c} value={c}>
                   {categoryLabel(c)}
-                </option>
-              ))}
-            </Select>
-            <Select id="color" label="Color" required value={form.color} onChange={(v) => setForm({ ...form, color: v })}>
-              {meta?.colors.map((c) => (
-                <option key={c} value={c}>
-                  {c.charAt(0).toUpperCase() + c.slice(1)}
                 </option>
               ))}
             </Select>

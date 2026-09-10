@@ -36,7 +36,7 @@ export interface Product {
   is_on_sale: boolean;
   new_collection: boolean;
   category: Category;
-  color: Color;
+  color: Color | null;
   total_stock: number | null;
   images: ProductImage[];
   variants: ProductVariant[];

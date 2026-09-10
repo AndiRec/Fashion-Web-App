@@ -218,10 +218,12 @@ export function ProductDetail() {
           </div>
 
           <dl className="mt-10 space-y-2 border-t border-line pt-6 text-xs text-ink-soft">
-            <div className="flex justify-between">
-              <dt>Color</dt>
-              <dd className="capitalize text-ink">{product.color}</dd>
-            </div>
+            {product.color ? (
+              <div className="flex justify-between">
+                <dt>Color</dt>
+                <dd className="capitalize text-ink">{product.color}</dd>
+              </div>
+            ) : null}
             <div className="flex justify-between">
               <dt>Category</dt>
               <dd className="text-ink">{categoryLabel(product.category)}</dd>
