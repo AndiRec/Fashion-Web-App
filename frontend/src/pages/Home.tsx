@@ -12,8 +12,8 @@ export function Home() {
       {/* Hero */}
       <section className="relative flex h-[85vh] min-h-[560px] items-end overflow-hidden bg-mist">
         <img
-          src="/images/aria1.jpeg"
-          alt="Aria Fashion boutique storefront"
+          src="/images/aria2.jpeg"
+          alt="Aria Fashion boutique interior"
           className="absolute inset-0 h-full w-full object-cover object-top"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 via-45% to-transparent" />
