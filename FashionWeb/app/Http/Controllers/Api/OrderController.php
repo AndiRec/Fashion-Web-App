@@ -41,8 +41,11 @@ class OrderController extends Controller
         ]);
 
         $newStatus = $request->string('status')->toString();
+        $wasCanceled = $order->status === 'canceled';
+        $becomingCanceled = $newStatus === 'canceled';
 
-        if ($newStatus === 'canceled' && $order->status !== 'canceled') {
+        if ($becomingCanceled && ! $wasCanceled) {
+            // Order is being canceled: give the reserved stock back.
             DB::transaction(function () use ($order, $newStatus) {
                 foreach ($order->items as $item) {
                     $variant = $item->product->variants()->where('size', $item->size)->first();
@@ -51,6 +54,29 @@ class OrderController extends Controller
 
                 $order->update(['status' => $newStatus]);
             });
+        } elseif ($wasCanceled && ! $becomingCanceled) {
+            // Order is being un-canceled: re-reserve the stock, unless
+            // it's since been sold to someone else in the meantime.
+            try {
+                DB::transaction(function () use ($order, $newStatus) {
+                    foreach ($order->items as $item) {
+                        $variant = $item->product->variants()->where('size', $item->size)->first();
+
+                        if (! $variant || $variant->stock < $item->quantity) {
+                            throw new \RuntimeException("Not enough stock for {$item->product->name} - size {$item->size} to restore this order.");
+                        }
+                    }
+
+                    foreach ($order->items as $item) {
+                        $variant = $item->product->variants()->where('size', $item->size)->first();
+                        $variant?->decrement('stock', $item->quantity);
+                    }
+
+                    $order->update(['status' => $newStatus]);
+                });
+            } catch (\RuntimeException $e) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
         } else {
             $order->update(['status' => $newStatus]);
         }
