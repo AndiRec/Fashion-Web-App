@@ -41,17 +41,21 @@ export function ProductCard({ product }: { product: Product }) {
           <div className="flex h-full w-full items-center justify-center text-ink-soft/40">Aria Fashion</div>
         )}
 
-        <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+        <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
           {product.new_collection ? (
-            <span className="bg-ink px-2.5 py-1 text-[10px] uppercase tracking-wider text-cream">New</span>
+            <span className="rounded-full bg-ink px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-cream shadow-sm">
+              New
+            </span>
           ) : null}
           {product.is_on_sale ? (
-            <span className="bg-rust px-2.5 py-1 text-[10px] uppercase tracking-wider text-cream">
+            <span className="rounded-full bg-rust px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-cream shadow-sm">
               -{product.discount_percentage}%
             </span>
           ) : null}
           {soldOut ? (
-            <span className="bg-cream px-2.5 py-1 text-[10px] uppercase tracking-wider text-ink">Sold out</span>
+            <span className="rounded-full border border-line bg-cream/95 px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-ink shadow-sm backdrop-blur">
+              Sold out
+            </span>
           ) : null}
         </div>
 

@@ -115,4 +115,44 @@
   .press {
     @apply transition-transform duration-150 active:scale-90;
   }
+
+  /* Dual-handle price slider: two native range inputs stacked on the same
+     track. The input itself stays invisible/unclickable (pointer-events:
+     none) except for its thumb, so both handles stay independently
+     draggable without z-index juggling. */
+  .range-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+  }
+  .range-slider-thumb::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    background: transparent;
+  }
+  .range-slider-thumb::-moz-range-track {
+    background: transparent;
+    border: none;
+  }
+  .range-slider-thumb::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: var(--color-ink);
+    border: 2px solid var(--color-cream);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+    cursor: pointer;
+  }
+  .range-slider-thumb::-moz-range-thumb {
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: var(--color-ink);
+    border: 2px solid var(--color-cream);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+    cursor: pointer;
+  }
 }

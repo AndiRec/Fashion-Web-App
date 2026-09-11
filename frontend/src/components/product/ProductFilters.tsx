@@ -2,13 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { useMeta } from "@/hooks/useMeta";
 import { useDebounce } from "@/hooks/useDebounce";
-import { categoryLabel } from "@/lib/format";
+import { categoryLabel, formatPrice } from "@/lib/format";
 import type { ProductFilters as Filters } from "@/hooks/useProducts";
 
 interface Props {
   filters: Filters;
   onChange: (filters: Filters) => void;
 }
+
+const PRICE_FLOOR = 0;
+const PRICE_CEILING = 10000;
+const PRICE_STEP = 50;
 
 export function ProductFilters({ filters, onChange }: Props) {
   const { data: meta } = useMeta();
@@ -17,17 +21,17 @@ export function ProductFilters({ filters, onChange }: Props) {
     onChange({ ...filters, [key]: value, page: 1 });
   }
 
-  // Price inputs are typed freely and only applied (triggering a refetch)
-  // once the user pauses, instead of firing a request per keystroke.
-  const [minPrice, setMinPrice] = useState(filters.min_price?.toString() ?? "");
-  const [maxPrice, setMaxPrice] = useState(filters.max_price?.toString() ?? "");
+  // Price is dragged on a slider and only applied (triggering a refetch)
+  // once the user pauses, instead of firing a request per movement.
+  const [minPrice, setMinPrice] = useState(filters.min_price ?? PRICE_FLOOR);
+  const [maxPrice, setMaxPrice] = useState(filters.max_price ?? PRICE_CEILING);
   const debouncedMin = useDebounce(minPrice);
   const debouncedMax = useDebounce(maxPrice);
   const isFirstRun = useRef(true);
 
   useEffect(() => {
-    setMinPrice(filters.min_price?.toString() ?? "");
-    setMaxPrice(filters.max_price?.toString() ?? "");
+    setMinPrice(filters.min_price ?? PRICE_FLOOR);
+    setMaxPrice(filters.max_price ?? PRICE_CEILING);
   }, [filters.min_price, filters.max_price]);
 
   useEffect(() => {
@@ -37,12 +41,15 @@ export function ProductFilters({ filters, onChange }: Props) {
     }
     onChange({
       ...filters,
-      min_price: debouncedMin ? Number(debouncedMin) : undefined,
-      max_price: debouncedMax ? Number(debouncedMax) : undefined,
+      min_price: debouncedMin > PRICE_FLOOR ? debouncedMin : undefined,
+      max_price: debouncedMax < PRICE_CEILING ? debouncedMax : undefined,
       page: 1,
     });
     // eslint-disable-next-line
   }, [debouncedMin, debouncedMax]);
+
+  const minPercent = ((minPrice - PRICE_FLOOR) / (PRICE_CEILING - PRICE_FLOOR)) * 100;
+  const maxPercent = ((maxPrice - PRICE_FLOOR) / (PRICE_CEILING - PRICE_FLOOR)) * 100;
 
   return (
     <div className="space-y-8">
@@ -89,23 +96,37 @@ export function ProductFilters({ filters, onChange }: Props) {
       </div>
 
       <div>
-        <h3 className="eyebrow mb-3">Price (ден.)</h3>
-        <div className="flex items-center gap-2">
+        <h3 className="eyebrow mb-4">Price (ден.)</h3>
+        <div className="relative h-4">
+          <div className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-line" />
+          <div
+            className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-ink"
+            style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
+          />
           <input
-            type="number"
-            placeholder="Min"
+            type="range"
+            min={PRICE_FLOOR}
+            max={PRICE_CEILING}
+            step={PRICE_STEP}
             value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            className="w-full border border-line bg-cream-soft px-3 py-2 text-sm focus:border-ink focus:outline-none"
+            onChange={(e) => setMinPrice(Math.min(Number(e.target.value), maxPrice - PRICE_STEP))}
+            className="range-slider-thumb absolute inset-x-0 top-1/2 w-full -translate-y-1/2 pointer-events-none"
+            aria-label="Minimum price"
           />
-          <span className="text-ink-soft">–</span>
           <input
-            type="number"
-            placeholder="Max"
+            type="range"
+            min={PRICE_FLOOR}
+            max={PRICE_CEILING}
+            step={PRICE_STEP}
             value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            className="w-full border border-line bg-cream-soft px-3 py-2 text-sm focus:border-ink focus:outline-none"
+            onChange={(e) => setMaxPrice(Math.max(Number(e.target.value), minPrice + PRICE_STEP))}
+            className="range-slider-thumb absolute inset-x-0 top-1/2 w-full -translate-y-1/2 pointer-events-none"
+            aria-label="Maximum price"
           />
+        </div>
+        <div className="mt-3 flex items-center justify-between text-xs text-ink-soft">
+          <span>{formatPrice(minPrice)}</span>
+          <span>{maxPrice >= PRICE_CEILING ? `${formatPrice(PRICE_CEILING)}+` : formatPrice(maxPrice)}</span>
         </div>
       </div>
 

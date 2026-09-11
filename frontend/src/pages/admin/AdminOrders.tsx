@@ -59,7 +59,63 @@ export function AdminOrders() {
         </Select>
       </div>
 
-      <div className="overflow-x-auto border border-line bg-cream">
+      {/* Mobile: card list, full-width status select instead of a cramped scrolling table */}
+      <div className="space-y-3 sm:hidden">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-36 animate-pulse border border-line bg-cream" />
+          ))
+        ) : data?.data.length === 0 ? (
+          <div className="border border-line bg-cream">
+            <EmptyState title="No orders found" description="Try a different search or status filter." />
+          </div>
+        ) : (
+          data?.data.map((order) => (
+            <div
+              key={order.id}
+              onClick={() => navigate(`/admin/orders/${order.id}`)}
+              className={`border border-line bg-cream p-4 ${isFetching ? "opacity-60" : ""}`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <span className="link-underline text-sm text-ink">#{order.id}</span>
+                  <p className="text-xs text-ink-soft">{formatDate(order.created_at)}</p>
+                </div>
+                <p className="text-sm text-ink">{formatPrice(order.total_price)}</p>
+              </div>
+              <div className="mt-3 border-t border-line pt-3">
+                <p className="text-sm text-ink">{order.customer?.name}</p>
+                <p className="text-xs text-ink-soft">{order.customer?.phone}</p>
+              </div>
+              <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                <Select
+                  id={`status-mobile-${order.id}`}
+                  value={order.status}
+                  onChange={(v) =>
+                    updateStatus.mutate(
+                      { id: order.id, status: v as OrderStatus },
+                      {
+                        onSuccess: () => push("Order status updated."),
+                        onError: (err) => push(getErrorMessage(err), "error"),
+                      },
+                    )
+                  }
+                  className="w-full"
+                >
+                  {statuses.map((s) => (
+                    <option key={s} value={s}>
+                      {s.charAt(0).toUpperCase() + s.slice(1)}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop / tablet: full table */}
+      <div className="hidden overflow-x-auto border border-line bg-cream sm:block">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-line bg-cream-soft text-xs uppercase tracking-wider text-ink-soft">
             <tr>
