@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useProduct } from "@/hooks/useProducts";
 import { useAddToCart } from "@/hooks/useCart";
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { BackButton } from "@/components/ui/BackButton";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { HeartIcon } from "@/components/icons";
+import { ChevronLeftIcon, ChevronRightIcon, HeartIcon, XIcon, ZoomInIcon } from "@/components/icons";
 import clsx from "clsx";
 
 export function ProductDetail() {
@@ -21,7 +21,9 @@ export function ProductDetail() {
   const { data: product, isLoading } = useProduct(id);
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const galleryRef = useRef<HTMLDivElement>(null);
+  const imageCount = product?.images.length ?? 0;
 
   function scrollToImage(index: number) {
     const el = galleryRef.current;
@@ -30,11 +32,28 @@ export function ProductDetail() {
     setActiveImage(index);
   }
 
+  function goToImage(index: number) {
+    if (imageCount === 0) return;
+    scrollToImage(((index % imageCount) + imageCount) % imageCount);
+  }
+
   function handleGalleryScroll() {
     const el = galleryRef.current;
     if (!el || el.clientWidth === 0) return;
     setActiveImage(Math.round(el.scrollLeft / el.clientWidth));
   }
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setLightboxOpen(false);
+      if (e.key === "ArrowLeft") goToImage(activeImage - 1);
+      if (e.key === "ArrowRight") goToImage(activeImage + 1);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxOpen, activeImage, imageCount]);
 
   const addToCart = useAddToCart();
   const toggleWishlist = useToggleWishlist();
@@ -116,22 +135,51 @@ export function ProductDetail() {
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <div>
-          <div
-            ref={galleryRef}
-            onScroll={handleGalleryScroll}
-            className="flex aspect-[3/4] w-full snap-x snap-mandatory overflow-x-auto scroll-smooth bg-mist [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {product.images.length > 0 ? (
-              product.images.map((img) => (
-                <div key={img.id} className="w-full flex-shrink-0 snap-center">
-                  <img src={img.url} alt={product.name} className="h-full w-full object-cover" />
+          <div className="relative">
+            <div
+              ref={galleryRef}
+              onScroll={handleGalleryScroll}
+              className="flex aspect-[3/4] w-full snap-x snap-mandatory overflow-x-auto scroll-smooth bg-mist [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {product.images.length > 0 ? (
+                product.images.map((img) => (
+                  <div key={img.id} className="group/image relative w-full flex-shrink-0 snap-center">
+                    <img
+                      src={img.url}
+                      alt={product.name}
+                      onClick={() => setLightboxOpen(true)}
+                      className="h-full w-full cursor-zoom-in object-cover"
+                    />
+                    <div className="pointer-events-none absolute bottom-3 right-3 hidden items-center justify-center rounded-full bg-cream/90 p-2 opacity-0 shadow-sm backdrop-blur transition-opacity duration-200 group-hover/image:opacity-100 sm:flex">
+                      <ZoomInIcon width={16} height={16} className="text-ink" />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="flex w-full flex-shrink-0 snap-center items-center justify-center text-ink-soft/40">
+                  Aria Fashion
                 </div>
-              ))
-            ) : (
-              <div className="flex w-full flex-shrink-0 snap-center items-center justify-center text-ink-soft/40">
-                Aria Fashion
-              </div>
-            )}
+              )}
+            </div>
+
+            {imageCount > 1 ? (
+              <>
+                <button
+                  onClick={() => goToImage(activeImage - 1)}
+                  aria-label="Previous photo"
+                  className="press absolute left-3 top-1/2 hidden -translate-y-1/2 items-center justify-center rounded-full bg-cream/90 p-2 text-ink shadow-sm backdrop-blur hover:bg-cream sm:flex"
+                >
+                  <ChevronLeftIcon width={20} height={20} />
+                </button>
+                <button
+                  onClick={() => goToImage(activeImage + 1)}
+                  aria-label="Next photo"
+                  className="press absolute right-3 top-1/2 hidden -translate-y-1/2 items-center justify-center rounded-full bg-cream/90 p-2 text-ink shadow-sm backdrop-blur hover:bg-cream sm:flex"
+                >
+                  <ChevronRightIcon width={20} height={20} />
+                </button>
+              </>
+            ) : null}
           </div>
 
           {product.images.length > 1 ? (
@@ -231,6 +279,57 @@ export function ProductDetail() {
           </dl>
         </div>
       </div>
+
+      {lightboxOpen && imageCount > 0 ? (
+        <div className="fixed inset-0 z-50 bg-ink/95" onClick={() => setLightboxOpen(false)}>
+          <button
+            onClick={() => setLightboxOpen(false)}
+            aria-label="Close"
+            className="press absolute right-4 top-4 text-cream sm:right-6 sm:top-6"
+          >
+            <XIcon width={26} height={26} />
+          </button>
+
+          {imageCount > 1 ? (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToImage(activeImage - 1);
+                }}
+                aria-label="Previous photo"
+                className="press absolute left-2 top-1/2 -translate-y-1/2 text-cream sm:left-6"
+              >
+                <ChevronLeftIcon width={32} height={32} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToImage(activeImage + 1);
+                }}
+                aria-label="Next photo"
+                className="press absolute right-2 top-1/2 -translate-y-1/2 text-cream sm:right-6"
+              >
+                <ChevronRightIcon width={32} height={32} />
+              </button>
+            </>
+          ) : null}
+
+          <div className="flex h-full w-full items-center justify-center p-6 sm:p-16" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={product.images[activeImage]?.url}
+              alt={product.name}
+              className="max-h-full max-w-full object-contain"
+            />
+          </div>
+
+          {imageCount > 1 ? (
+            <p className="absolute bottom-5 left-1/2 -translate-x-1/2 text-xs tracking-wide text-cream/70">
+              {activeImage + 1} / {imageCount}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -210,3 +210,13 @@ export function UploadIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function ZoomInIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M11 8v6M8 11h6" />
+      <path d="m20 20-3.2-3.2" />
+    </svg>
+  );
+}
