@@ -14,4 +14,5 @@ enum Size: string
     case S46 = '46';
     case S48 = '48';
     case S50 = '50';
+    case STANDARD = 'Standard';
 }

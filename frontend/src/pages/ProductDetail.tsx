@@ -231,7 +231,7 @@ export function ProductDetail() {
                   disabled={v.stock < 1}
                   onClick={() => setSelectedSize(v.size)}
                   className={clsx(
-                    "flex h-11 w-11 items-center justify-center border text-sm transition-colors",
+                    "flex h-11 min-w-11 items-center justify-center border px-3 text-sm transition-colors",
                     v.stock < 1
                       ? "border-line text-ink-soft/30 line-through"
                       : selectedSize === v.size

@@ -85,7 +85,7 @@ export function ProductFilters({ filters, onChange }: Props) {
               key={size}
               onClick={() => set("size", filters.size === size ? undefined : size)}
               className={clsx(
-                "flex h-9 w-9 items-center justify-center border text-xs",
+                "flex h-9 min-w-9 items-center justify-center border px-2 text-xs",
                 filters.size === size ? "border-ink bg-ink text-cream" : "border-line text-ink-soft hover:border-ink",
               )}
             >
