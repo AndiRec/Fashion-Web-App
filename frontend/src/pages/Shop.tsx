@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useProducts, type ProductFilters as Filters } from "@/hooks/useProducts";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductFilters } from "@/components/product/ProductFilters";
@@ -32,6 +33,7 @@ function filtersToParams(filters: Filters): URLSearchParams {
 }
 
 export function Shop() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFiltersState] = useState<Filters>(() => filtersFromParams(searchParams));
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -53,9 +55,9 @@ export function Shop() {
   const activeChips: { key: keyof Filters; label: string }[] = [
     ...(filters.search ? [{ key: "search" as const, label: `"${filters.search}"` }] : []),
     ...(filters.category ? [{ key: "category" as const, label: categoryLabel(filters.category) }] : []),
-    ...(filters.size ? [{ key: "size" as const, label: `Size ${filters.size}` }] : []),
-    ...(filters.on_sale ? [{ key: "on_sale" as const, label: "On Sale" }] : []),
-    ...(filters.new_collection ? [{ key: "new_collection" as const, label: "New Collection" }] : []),
+    ...(filters.size ? [{ key: "size" as const, label: t("shop.size", { size: filters.size }) }] : []),
+    ...(filters.on_sale ? [{ key: "on_sale" as const, label: t("shop.onSale") }] : []),
+    ...(filters.new_collection ? [{ key: "new_collection" as const, label: t("shop.newCollection") }] : []),
   ];
 
   function removeChip(key: keyof Filters) {
@@ -65,16 +67,16 @@ export function Shop() {
   return (
     <div className="container-boutique py-12">
       <div className="mb-8 border-b border-line pb-6">
-        <p className="eyebrow mb-2">Shop</p>
+        <p className="eyebrow mb-2">{t("shop.eyebrow")}</p>
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-3xl">All Products</h1>
+          <h1 className="text-3xl">{t("shop.title")}</h1>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileFiltersOpen(true)}
               className="press flex items-center gap-1.5 border border-line px-3 py-2 text-xs uppercase tracking-wider text-ink-soft hover:border-ink hover:text-ink lg:hidden"
             >
               <SlidersIcon width={14} height={14} />
-              Filters
+              {t("shop.filters")}
             </button>
             <Select
               id="sort"
@@ -82,10 +84,10 @@ export function Shop() {
               onChange={(v) => updateFilters({ ...filters, sort: v as Filters["sort"], page: 1 })}
               className="w-auto"
             >
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
+              <option value="newest">{t("shop.sortNewest")}</option>
+              <option value="oldest">{t("shop.sortOldest")}</option>
+              <option value="price_asc">{t("shop.sortPriceAsc")}</option>
+              <option value="price_desc">{t("shop.sortPriceDesc")}</option>
             </Select>
           </div>
         </div>
@@ -107,7 +109,7 @@ export function Shop() {
             onClick={() => updateFilters({ sort: filters.sort })}
             className="link-underline text-xs uppercase tracking-wider text-ink-soft"
           >
-            Clear All
+            {t("shop.clearAll")}
           </button>
         </div>
       ) : null}
@@ -122,7 +124,7 @@ export function Shop() {
             <ProductGridSkeleton />
           ) : (
             <>
-              <p className="mb-6 text-xs text-ink-soft">{data?.meta.total ?? 0} products</p>
+              <p className="mb-6 text-xs text-ink-soft">{t("shop.productsCount", { count: data?.meta.total ?? 0 })}</p>
               <div className={isFetching ? "opacity-60 transition-opacity" : ""}>
                 <ProductGrid products={data?.data ?? []} />
               </div>
@@ -142,8 +144,8 @@ export function Shop() {
         <div className="fixed inset-0 z-50 bg-ink/40 lg:hidden" onClick={() => setMobileFiltersOpen(false)}>
           <div className="animate-slide-in-left h-full w-80 overflow-y-auto bg-cream p-6" onClick={(e) => e.stopPropagation()}>
             <div className="mb-6 flex items-center justify-between">
-              <h3 className="font-display text-xl">Filters</h3>
-              <button onClick={() => setMobileFiltersOpen(false)} aria-label="Close filters" className="press text-ink-soft">
+              <h3 className="font-display text-xl">{t("shop.filters")}</h3>
+              <button onClick={() => setMobileFiltersOpen(false)} aria-label={t("shop.closeFilters")} className="press text-ink-soft">
                 <XIcon width={18} height={18} />
               </button>
             </div>

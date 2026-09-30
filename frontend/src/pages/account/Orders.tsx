@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useMyOrders } from "@/hooks/useOrders";
 import { AccountLayout } from "@/components/layout/AccountLayout";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { formatDate, formatPrice } from "@/lib/format";
 
 export function Orders() {
+  const { t } = useTranslation();
   const { data: orders, isLoading } = useMyOrders();
 
   return (
@@ -16,11 +18,11 @@ export function Orders() {
         <Spinner />
       ) : !orders || orders.length === 0 ? (
         <EmptyState
-          title="No orders yet"
-          description="Once you place an order, it will show up here."
+          title={t("account.orders.emptyTitle")}
+          description={t("account.orders.emptyDescription")}
           action={
             <Link to="/shop">
-              <Button>Start Shopping</Button>
+              <Button>{t("account.orders.startShopping")}</Button>
             </Link>
           }
         />
@@ -30,8 +32,8 @@ export function Orders() {
             <li key={order.id}>
               <Link to={`/account/orders/${order.id}`} className="flex items-center justify-between gap-4 py-5 hover:bg-cream-soft">
                 <div>
-                  <p className="text-sm text-ink">Order #{order.id}</p>
-                  <p className="text-xs text-ink-soft">{formatDate(order.created_at)} · {order.items.length} items</p>
+                  <p className="text-sm text-ink">{t("account.orders.orderNumber", { id: order.id })}</p>
+                  <p className="text-xs text-ink-soft">{formatDate(order.created_at)} · {t("account.orders.itemsCount", { count: order.items.length })}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-ink">{formatPrice(order.total_price)}</span>

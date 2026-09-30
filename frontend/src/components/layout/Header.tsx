@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { useAuthStore } from "@/store/auth";
 import { useUiStore } from "@/store/ui";
@@ -8,15 +9,16 @@ import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useBumpOnChange } from "@/hooks/useBump";
 import { BagIcon, HeartIcon, MenuIcon, SearchIcon, UserIcon, XIcon } from "@/components/icons";
-
-const navLinks = [
-  { label: "New Collection", to: "/shop?new_collection=1" },
-  { label: "Shop", to: "/shop" },
-  { label: "Sale", to: "/shop?on_sale=1" },
-  { label: "About", to: "/about" },
-];
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export function Header() {
+  const { t } = useTranslation();
+  const navLinks = [
+    { label: t("nav.newCollection"), to: "/shop?new_collection=1" },
+    { label: t("nav.shop"), to: "/shop" },
+    { label: t("nav.sale"), to: "/shop?on_sale=1" },
+    { label: t("nav.about"), to: "/about" },
+  ];
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -47,11 +49,11 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-cream/95 backdrop-blur">
       <div className="hidden bg-ink py-2 text-center text-[11px] uppercase tracking-[0.2em] text-cream sm:block">
-        Boutique in Struga — free local pickup on every order
+        {t("header.banner")}
       </div>
 
       <div className="container-boutique grid h-20 grid-cols-[auto_1fr_auto] items-center gap-4 lg:flex lg:justify-between">
-        <button className="press lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+        <button className="press lg:hidden" onClick={() => setMobileOpen(true)} aria-label={t("header.openMenu")}>
           <MenuIcon />
         </button>
 
@@ -72,13 +74,14 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-4 sm:gap-5">
-          <button className="press" onClick={() => setSearchOpen((v) => !v)} aria-label="Search" aria-expanded={searchOpen}>
+          <LanguageSwitcher className="hidden lg:flex" />
+          <button className="press" onClick={() => setSearchOpen((v) => !v)} aria-label={t("header.search")} aria-expanded={searchOpen}>
             <SearchIcon />
           </button>
-          <Link to={user ? (user.is_admin ? "/admin" : "/account") : "/login"} aria-label="Account" className="press">
+          <Link to={user ? (user.is_admin ? "/admin" : "/account") : "/login"} aria-label={t("header.account")} className="press">
             <UserIcon />
           </Link>
-          <button onClick={openWishlist} className="press relative" aria-label="Wishlist">
+          <button onClick={openWishlist} className="press relative" aria-label={t("header.wishlist")}>
             <HeartIcon />
             {wishlistCount > 0 ? (
               <span
@@ -91,7 +94,7 @@ export function Header() {
               </span>
             ) : null}
           </button>
-          <button onClick={openCart} className="press relative" aria-label="Cart">
+          <button onClick={openCart} className="press relative" aria-label={t("header.cart")}>
             <BagIcon />
             {cartCount > 0 ? (
               <span
@@ -115,10 +118,10 @@ export function Header() {
               ref={searchInputRef}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Search for dresses, blazers, accessories…"
+              placeholder={t("header.searchPlaceholder")}
               className="w-full bg-transparent text-sm text-ink placeholder:text-ink-soft/50 focus:outline-none"
             />
-            <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search" className="text-ink-soft">
+            <button type="button" onClick={() => setSearchOpen(false)} aria-label={t("header.closeSearch")} className="text-ink-soft">
               <XIcon width={16} height={16} />
             </button>
           </form>
@@ -139,7 +142,7 @@ export function Header() {
                 className="animate-slide-in-left h-full w-72 overflow-y-auto bg-cream p-6 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
-                <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="press mb-8">
+                <button onClick={() => setMobileOpen(false)} aria-label={t("header.closeMenu")} className="press mb-8">
                   <XIcon />
                 </button>
                 <nav className="flex flex-col gap-6">
@@ -154,6 +157,7 @@ export function Header() {
                     </Link>
                   ))}
                 </nav>
+                <LanguageSwitcher className="mt-8 border-t border-line pt-6" />
               </div>
             </div>,
             document.body,

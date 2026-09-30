@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useProduct } from "@/hooks/useProducts";
 import { useAddToCart } from "@/hooks/useCart";
 import { useToggleWishlist, useWishlist } from "@/hooks/useWishlist";
@@ -17,6 +18,7 @@ import { ChevronLeftIcon, ChevronRightIcon, HeartIcon, XIcon, ZoomInIcon } from 
 import clsx from "clsx";
 
 export function ProductDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data: product, isLoading } = useProduct(id);
   const [activeImage, setActiveImage] = useState(0);
@@ -85,11 +87,11 @@ export function ProductDetail() {
     return (
       <div className="container-boutique">
         <EmptyState
-          title="Product not found"
-          description="This item may have been removed or is no longer available."
+          title={t("product.notFoundTitle")}
+          description={t("product.notFoundDescription")}
           action={
             <Link to="/shop">
-              <Button>Back to Shop</Button>
+              <Button>{t("product.backToShop")}</Button>
             </Link>
           }
         />
@@ -102,12 +104,12 @@ export function ProductDetail() {
 
   function handleAddToCart() {
     if (!selectedSize) {
-      push("Please select a size.", "error");
+      push(t("toast.selectSize"), "error");
       return;
     }
     // Give feedback immediately rather than waiting on the network — the
     // cache is already updated optimistically by the mutation itself.
-    push("Added to your bag.");
+    push(t("toast.addedToBag"));
     openCart();
     addToCart.mutate(
       { productId: product!.id, size: selectedSize, product },
@@ -127,7 +129,7 @@ export function ProductDetail() {
       </div>
       <nav className="mb-8 hidden text-xs text-ink-soft sm:block">
         <Link to="/shop" className="hover:text-ink">
-          Shop
+          {t("nav.shop")}
         </Link>
         <span className="mx-2">/</span>
         <span>{product.name}</span>
@@ -157,7 +159,7 @@ export function ProductDetail() {
                 ))
               ) : (
                 <div className="flex w-full flex-shrink-0 snap-center items-center justify-center text-ink-soft/40">
-                  Aria Fashion
+                  {t("product.placeholderName")}
                 </div>
               )}
             </div>
@@ -166,14 +168,14 @@ export function ProductDetail() {
               <>
                 <button
                   onClick={() => goToImage(activeImage - 1)}
-                  aria-label="Previous photo"
+                  aria-label={t("product.previousPhoto")}
                   className="press absolute left-3 top-1/2 hidden -translate-y-1/2 items-center justify-center rounded-full bg-cream/90 p-2 text-ink shadow-sm backdrop-blur hover:bg-cream sm:flex"
                 >
                   <ChevronLeftIcon width={20} height={20} />
                 </button>
                 <button
                   onClick={() => goToImage(activeImage + 1)}
-                  aria-label="Next photo"
+                  aria-label={t("product.nextPhoto")}
                   className="press absolute right-3 top-1/2 hidden -translate-y-1/2 items-center justify-center rounded-full bg-cream/90 p-2 text-ink shadow-sm backdrop-blur hover:bg-cream sm:flex"
                 >
                   <ChevronRightIcon width={20} height={20} />
@@ -190,7 +192,7 @@ export function ProductDetail() {
                   <button
                     key={img.id}
                     onClick={() => scrollToImage(i)}
-                    aria-label={`View photo ${i + 1} of ${product.images.length}`}
+                    aria-label={t("product.viewPhoto", { index: i + 1, total: product.images.length })}
                     className={clsx(
                       "h-1.5 rounded-full transition-all duration-200",
                       i === activeImage ? "w-6 bg-ink" : "w-1.5 bg-ink/25",
@@ -223,7 +225,7 @@ export function ProductDetail() {
           <p className="mb-8 text-sm leading-relaxed text-ink-soft">{product.description}</p>
 
           <div className="mb-8">
-            <h3 className="eyebrow mb-3">Size</h3>
+            <h3 className="eyebrow mb-3">{t("product.size")}</h3>
             <div className="flex flex-wrap gap-2">
               {product.variants.map((v) => (
                 <button
@@ -244,17 +246,17 @@ export function ProductDetail() {
               ))}
             </div>
             {variant && variant.stock <= 5 && variant.stock > 0 ? (
-              <p className="mt-2 text-xs text-rust">Only {variant.stock} left in size {variant.size}</p>
+              <p className="mt-2 text-xs text-rust">{t("product.onlyLeftInSize", { count: variant.stock, size: variant.size })}</p>
             ) : null}
           </div>
 
           <div className="flex gap-3">
             <Button size="lg" className="flex-1" onClick={handleAddToCart} loading={addToCart.isPending} disabled={outOfStock}>
-              {outOfStock ? "Sold Out" : "Add to Bag"}
+              {outOfStock ? t("product.soldOut") : t("product.addToBag")}
             </Button>
             <button
               onClick={handleWishlist}
-              aria-label="Toggle wishlist"
+              aria-label={t("product.toggleWishlist")}
               aria-pressed={isWishlisted}
               className="press flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center border border-ink"
             >
@@ -268,12 +270,12 @@ export function ProductDetail() {
           <dl className="mt-10 space-y-2 border-t border-line pt-6 text-xs text-ink-soft">
             {product.color ? (
               <div className="flex justify-between">
-                <dt>Color</dt>
+                <dt>{t("product.color")}</dt>
                 <dd className="capitalize text-ink">{product.color}</dd>
               </div>
             ) : null}
             <div className="flex justify-between">
-              <dt>Category</dt>
+              <dt>{t("product.category")}</dt>
               <dd className="text-ink">{categoryLabel(product.category)}</dd>
             </div>
           </dl>
@@ -284,7 +286,7 @@ export function ProductDetail() {
         <div className="fixed inset-0 z-50 bg-ink/95" onClick={() => setLightboxOpen(false)}>
           <button
             onClick={() => setLightboxOpen(false)}
-            aria-label="Close"
+            aria-label={t("product.close")}
             className="press absolute right-4 top-4 text-cream sm:right-6 sm:top-6"
           >
             <XIcon width={26} height={26} />
@@ -297,7 +299,7 @@ export function ProductDetail() {
                   e.stopPropagation();
                   goToImage(activeImage - 1);
                 }}
-                aria-label="Previous photo"
+                aria-label={t("product.previousPhoto")}
                 className="press absolute left-2 top-1/2 -translate-y-1/2 text-cream sm:left-6"
               >
                 <ChevronLeftIcon width={32} height={32} />
@@ -307,7 +309,7 @@ export function ProductDetail() {
                   e.stopPropagation();
                   goToImage(activeImage + 1);
                 }}
-                aria-label="Next photo"
+                aria-label={t("product.nextPhoto")}
                 className="press absolute right-2 top-1/2 -translate-y-1/2 text-cream sm:right-6"
               >
                 <ChevronRightIcon width={32} height={32} />

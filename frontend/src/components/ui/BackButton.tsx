@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { ChevronLeftIcon } from "@/components/icons";
 
@@ -9,7 +10,8 @@ interface Props {
   className?: string;
 }
 
-export function BackButton({ fallback, label = "Back", className }: Props) {
+export function BackButton({ fallback, label, className }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   function handleClick() {
@@ -31,7 +33,7 @@ export function BackButton({ fallback, label = "Back", className }: Props) {
       className={clsx("press inline-flex items-center gap-1 text-xs text-ink-soft hover:text-ink", className)}
     >
       <ChevronLeftIcon width={14} height={14} />
-      {label}
+      {label ?? t("common.back")}
     </button>
   );
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/Button";
 import { AlertIcon } from "@/components/icons";
 
@@ -17,13 +18,14 @@ export function ConfirmDialog({
   open,
   title,
   description,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel,
+  cancelLabel,
   variant = "danger",
   loading,
   onConfirm,
   onCancel,
 }: Props) {
+  const { t } = useTranslation();
   if (!open) return null;
 
   return (
@@ -42,10 +44,10 @@ export function ConfirmDialog({
         </div>
         <div className="mt-6 flex justify-end gap-3">
           <Button variant="ghost" size="sm" onClick={onCancel}>
-            {cancelLabel}
+            {cancelLabel ?? t("common.cancel")}
           </Button>
           <Button variant={variant === "danger" ? "danger" : "primary"} size="sm" onClick={onConfirm} loading={loading}>
-            {confirmLabel}
+            {confirmLabel ?? t("common.confirm")}
           </Button>
         </div>
       </div>

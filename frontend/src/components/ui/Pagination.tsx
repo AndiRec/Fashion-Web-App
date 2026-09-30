@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 
 export function Pagination({
   currentPage,
@@ -9,6 +10,7 @@ export function Pagination({
   lastPage: number;
   onChange: (page: number) => void;
 }) {
+  const { t } = useTranslation();
   if (lastPage <= 1) return null;
 
   const pages = Array.from({ length: lastPage }, (_, i) => i + 1).filter(
@@ -22,7 +24,7 @@ export function Pagination({
         onClick={() => onChange(currentPage - 1)}
         className="px-3 py-2 text-sm text-ink-soft disabled:opacity-30 hover:text-ink"
       >
-        Prev
+        {t("common.prev")}
       </button>
       {pages.map((page, i) => (
         <span key={page} className="flex items-center">
@@ -43,7 +45,7 @@ export function Pagination({
         onClick={() => onChange(currentPage + 1)}
         className="px-3 py-2 text-sm text-ink-soft disabled:opacity-30 hover:text-ink"
       >
-        Next
+        {t("common.next")}
       </button>
     </div>
   );

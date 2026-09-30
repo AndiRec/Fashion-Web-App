@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 import { useMeta } from "@/hooks/useMeta";
 import { useDebounce } from "@/hooks/useDebounce";
 import { categoryLabel, formatPrice } from "@/lib/format";
@@ -15,6 +16,7 @@ const PRICE_CEILING = 10000;
 const PRICE_STEP = 50;
 
 export function ProductFilters({ filters, onChange }: Props) {
+  const { t } = useTranslation();
   const { data: meta } = useMeta();
 
   function set<K extends keyof Filters>(key: K, value: Filters[K]) {
@@ -54,13 +56,13 @@ export function ProductFilters({ filters, onChange }: Props) {
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="eyebrow mb-3">Category</h3>
+        <h3 className="eyebrow mb-3">{t("productFilters.category")}</h3>
         <div className="flex flex-col gap-2">
           <button
             onClick={() => set("category", undefined)}
             className={clsx("text-left text-sm", !filters.category ? "text-ink font-medium" : "text-ink-soft hover:text-ink")}
           >
-            All
+            {t("productFilters.all")}
           </button>
           {meta?.categories.map((category) => (
             <button
@@ -78,7 +80,7 @@ export function ProductFilters({ filters, onChange }: Props) {
       </div>
 
       <div>
-        <h3 className="eyebrow mb-3">Size</h3>
+        <h3 className="eyebrow mb-3">{t("productFilters.size")}</h3>
         <div className="flex flex-wrap gap-2">
           {meta?.sizes.map((size) => (
             <button
@@ -96,7 +98,7 @@ export function ProductFilters({ filters, onChange }: Props) {
       </div>
 
       <div>
-        <h3 className="eyebrow mb-4">Price (ден.)</h3>
+        <h3 className="eyebrow mb-4">{t("productFilters.price")}</h3>
         <div className="relative h-4">
           <div className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-line" />
           <div
@@ -111,7 +113,7 @@ export function ProductFilters({ filters, onChange }: Props) {
             value={minPrice}
             onChange={(e) => setMinPrice(Math.min(Number(e.target.value), maxPrice - PRICE_STEP))}
             className="range-slider-thumb absolute inset-x-0 top-1/2 w-full -translate-y-1/2 pointer-events-none"
-            aria-label="Minimum price"
+            aria-label={t("productFilters.minimumPrice")}
           />
           <input
             type="range"
@@ -121,7 +123,7 @@ export function ProductFilters({ filters, onChange }: Props) {
             value={maxPrice}
             onChange={(e) => setMaxPrice(Math.max(Number(e.target.value), minPrice + PRICE_STEP))}
             className="range-slider-thumb absolute inset-x-0 top-1/2 w-full -translate-y-1/2 pointer-events-none"
-            aria-label="Maximum price"
+            aria-label={t("productFilters.maximumPrice")}
           />
         </div>
         <div className="mt-3 flex items-center justify-between text-xs text-ink-soft">
@@ -138,7 +140,7 @@ export function ProductFilters({ filters, onChange }: Props) {
             onChange={(e) => set("on_sale", e.target.checked || undefined)}
             className="h-4 w-4 accent-ink"
           />
-          On sale
+          {t("productFilters.onSale")}
         </label>
         <label className="flex items-center gap-2 text-sm text-ink-soft">
           <input
@@ -147,7 +149,7 @@ export function ProductFilters({ filters, onChange }: Props) {
             onChange={(e) => set("new_collection", e.target.checked || undefined)}
             className="h-4 w-4 accent-ink"
           />
-          New collection
+          {t("productFilters.newCollection")}
         </label>
       </div>
 
@@ -155,7 +157,7 @@ export function ProductFilters({ filters, onChange }: Props) {
         onClick={() => onChange({ sort: filters.sort })}
         className="link-underline text-xs uppercase tracking-wider text-ink-soft"
       >
-        Clear filters
+        {t("productFilters.clearFilters")}
       </button>
     </div>
   );

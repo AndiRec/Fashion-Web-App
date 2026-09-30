@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
+import { Trans, useTranslation } from "react-i18next";
 import { useForgotPassword } from "@/hooks/useAuth";
 import { getErrorMessage } from "@/lib/api";
 import { AuthLayout } from "@/components/layout/AuthLayout";
@@ -7,6 +8,7 @@ import { Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 
 export function ForgotPassword() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const forgotPassword = useForgotPassword();
@@ -19,13 +21,13 @@ export function ForgotPassword() {
 
   if (forgotPassword.isSuccess) {
     return (
-      <AuthLayout title="Check Your Email">
+      <AuthLayout title={t("auth.checkEmailTitle")}>
         <p className="text-center text-sm text-ink-soft">
-          If an account exists for <strong className="text-ink">{email}</strong>, we've sent a link to reset your password.
+          <Trans i18nKey="auth.checkEmailBody" values={{ email }} components={{ strong: <strong className="text-ink" /> }} />
         </p>
         <div className="mt-8 text-center">
           <Link to="/login" className="link-underline text-sm text-ink">
-            Back to Sign In
+            {t("auth.backToSignIn")}
           </Link>
         </div>
       </AuthLayout>
@@ -33,17 +35,17 @@ export function ForgotPassword() {
   }
 
   return (
-    <AuthLayout title="Reset Password" subtitle="We'll email you a link to reset it">
+    <AuthLayout title={t("auth.resetPasswordTitle")} subtitle={t("auth.resetPasswordSubtitle")}>
       <form onSubmit={handleSubmit} className="space-y-5">
-        <Input id="email" type="email" label="Email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input id="email" type="email" label={t("auth.email")} required value={email} onChange={(e) => setEmail(e.target.value)} />
         {error ? <p className="text-sm text-rust">{error}</p> : null}
         <Button type="submit" className="w-full" size="lg" loading={forgotPassword.isPending}>
-          Send Reset Link
+          {t("auth.sendResetLink")}
         </Button>
       </form>
       <p className="mt-8 text-center text-sm text-ink-soft">
         <Link to="/login" className="text-ink underline">
-          Back to Sign In
+          {t("auth.backToSignIn")}
         </Link>
       </p>
     </AuthLayout>

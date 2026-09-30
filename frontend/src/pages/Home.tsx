@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useFeaturedProducts } from "@/hooks/useProducts";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductGridSkeleton } from "@/components/ui/Skeleton";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 
 export function Home() {
   const { data: featured, isLoading } = useFeaturedProducts();
+  const { t } = useTranslation();
 
   return (
     <div>
@@ -13,20 +15,20 @@ export function Home() {
       <section className="relative flex h-[85vh] min-h-[560px] items-end overflow-hidden bg-mist">
         <img
           src="/images/aria2.jpeg"
-          alt="Aria Fashion boutique interior"
+          alt={t("home.boutiqueInterior")}
           className="absolute inset-0 h-full w-full object-cover"
           style={{ objectPosition: "50% 20%" }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 via-45% to-transparent" />
         <div className="container-boutique relative pb-16 text-cream [text-shadow:0_2px_16px_rgb(0_0_0_/_35%)]">
-          <p className="eyebrow mb-3 text-cream/90">Struga, North Macedonia</p>
+          <p className="eyebrow mb-3 text-cream/90">{t("home.heroLocation")}</p>
           <h1 className="max-w-xl font-display text-4xl leading-tight sm:text-5xl md:text-6xl">
-            Effortless elegance, made for everyday.
+            {t("home.heroTitle")}
           </h1>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
             <Link to="/shop" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto">
-                Shop the Collection
+                {t("home.shopCollection")}
               </Button>
             </Link>
             <Link to="/shop?new_collection=1" className="w-full sm:w-auto">
@@ -35,7 +37,7 @@ export function Home() {
                 variant="ghost"
                 className="w-full border border-white text-white hover:bg-white hover:text-ink sm:w-auto"
               >
-                New In
+                {t("home.newIn")}
               </Button>
             </Link>
           </div>
@@ -46,16 +48,16 @@ export function Home() {
       <section className="border-b border-line bg-cream-soft">
         <div className="container-boutique grid grid-cols-1 divide-y divide-line py-8 text-center sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           <div className="px-4 py-4 sm:py-0">
-            <p className="text-sm text-ink">Free local pickup</p>
-            <p className="text-xs text-ink-soft">Order online, collect in Struga</p>
+            <p className="text-sm text-ink">{t("home.pickupTitle")}</p>
+            <p className="text-xs text-ink-soft">{t("home.pickupDesc")}</p>
           </div>
           <div className="px-4 py-4 sm:py-0">
-            <p className="text-sm text-ink">Handpicked fabrics</p>
-            <p className="text-xs text-ink-soft">Quality pieces, chosen with care</p>
+            <p className="text-sm text-ink">{t("home.fabricsTitle")}</p>
+            <p className="text-xs text-ink-soft">{t("home.fabricsDesc")}</p>
           </div>
           <div className="px-4 py-4 sm:py-0">
-            <p className="text-sm text-ink">Easy exchanges</p>
-            <p className="text-xs text-ink-soft">Sized wrong? We'll make it right</p>
+            <p className="text-sm text-ink">{t("home.exchangesTitle")}</p>
+            <p className="text-xs text-ink-soft">{t("home.exchangesDesc")}</p>
           </div>
         </div>
       </section>
@@ -64,11 +66,11 @@ export function Home() {
       <section className="container-boutique py-20">
         <div className="mb-10 flex items-end justify-between">
           <div>
-            <p className="eyebrow mb-2">Just In</p>
-            <h2 className="text-3xl">New Collection</h2>
+            <p className="eyebrow mb-2">{t("home.justIn")}</p>
+            <h2 className="text-3xl">{t("home.newCollection")}</h2>
           </div>
           <Link to="/shop?new_collection=1" className="link-underline hidden text-xs uppercase tracking-wider text-ink-soft sm:block">
-            View All
+            {t("home.viewAll")}
           </Link>
         </div>
         {isLoading ? <ProductGridSkeleton count={4} /> : <ProductGrid products={featured?.new_collection ?? []} />}
@@ -77,19 +79,15 @@ export function Home() {
       {/* Editorial split */}
       <section className="grid grid-cols-1 lg:grid-cols-2">
         <div className="aspect-[4/5] lg:aspect-auto">
-          <img src="/images/lookbook-blazer-blue.jpg" alt="Aria Fashion boutique" className="h-full w-full object-cover" />
+          <img src="/images/lookbook-blazer-blue.jpg" alt={t("home.boutiqueImage")} className="h-full w-full object-cover" />
         </div>
         <div className="flex items-center bg-taupe/15 px-8 py-16 lg:px-16">
           <div className="max-w-md">
-            <p className="eyebrow mb-3">Our Story</p>
-            <h2 className="mb-5 text-3xl">A boutique rooted in Struga</h2>
-            <p className="mb-8 text-sm leading-relaxed text-ink-soft">
-              Aria Fashion began as a small atelier on the shore of Lake Ohrid, built on a simple idea: clothing
-              should feel as good as it looks. Every piece we carry is chosen for its craftsmanship, its
-              silhouette, and the way it moves with you.
-            </p>
+            <p className="eyebrow mb-3">{t("home.ourStory")}</p>
+            <h2 className="mb-5 text-3xl">{t("home.storyTitle")}</h2>
+            <p className="mb-8 text-sm leading-relaxed text-ink-soft">{t("home.storyBody")}</p>
             <Link to="/about">
-              <Button variant="outline">Read Our Story</Button>
+              <Button variant="outline">{t("home.readStory")}</Button>
             </Link>
           </div>
         </div>
@@ -100,11 +98,11 @@ export function Home() {
         <section className="container-boutique py-20">
           <div className="mb-10 flex items-end justify-between">
             <div>
-              <p className="eyebrow mb-2">Limited Time</p>
-              <h2 className="text-3xl">Current Sale</h2>
+              <p className="eyebrow mb-2">{t("home.limitedTime")}</p>
+              <h2 className="text-3xl">{t("home.currentSale")}</h2>
             </div>
             <Link to="/shop?on_sale=1" className="link-underline hidden text-xs uppercase tracking-wider text-ink-soft sm:block">
-              View All
+              {t("home.viewAll")}
             </Link>
           </div>
           {isLoading ? <ProductGridSkeleton count={4} /> : <ProductGrid products={featured?.on_sale ?? []} />}
@@ -114,19 +112,19 @@ export function Home() {
       {/* Lookbook strip */}
       <section className="container-boutique pb-20">
         <div className="mb-10 text-center">
-          <p className="eyebrow mb-2">Lookbook</p>
-          <h2 className="text-3xl">Styled in Aria</h2>
+          <p className="eyebrow mb-2">{t("home.lookbook")}</p>
+          <h2 className="text-3xl">{t("home.styledIn")}</h2>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {["lookbook-vest-charcoal.jpg", "lookbook-dress-safari.jpg", "lookbook-blazer-blush.jpg"].map((img) => (
             <Link key={img} to="/shop" className="group relative aspect-[3/4] overflow-hidden bg-mist">
               <img
                 src={`/images/${img}`}
-                alt="Aria Fashion lookbook"
+                alt={t("home.lookbookImage")}
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 flex items-end bg-gradient-to-t from-ink/50 to-transparent p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                <span className="text-xs uppercase tracking-wider text-cream">Shop the Look</span>
+                <span className="text-xs uppercase tracking-wider text-cream">{t("home.shopTheLook")}</span>
               </div>
             </Link>
           ))}

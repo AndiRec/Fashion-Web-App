@@ -1,5 +1,6 @@
 import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { useToggleWishlist, useWishlist } from "@/hooks/useWishlist";
 import { useToastStore } from "@/store/toast";
@@ -11,6 +12,7 @@ import { categoryLabel } from "@/lib/format";
 import type { Product } from "@/lib/types";
 
 export function ProductCard({ product }: { product: Product }) {
+  const { t } = useTranslation();
   const { data: wishlist } = useWishlist();
   const toggleWishlist = useToggleWishlist();
   const push = useToastStore((s) => s.push);
@@ -38,13 +40,13 @@ export function ProductCard({ product }: { product: Product }) {
             className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-ink-soft/40">Aria Fashion</div>
+          <div className="flex h-full w-full items-center justify-center text-ink-soft/40">{t("product.placeholderName")}</div>
         )}
 
         <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
           {product.new_collection ? (
             <span className="rounded-full bg-ink px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-cream shadow-sm">
-              New
+              {t("product.badgeNew")}
             </span>
           ) : null}
           {product.is_on_sale ? (
@@ -54,14 +56,14 @@ export function ProductCard({ product }: { product: Product }) {
           ) : null}
           {soldOut ? (
             <span className="rounded-full border border-line bg-cream/95 px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-ink shadow-sm backdrop-blur">
-              Sold out
+              {t("product.badgeSoldOut")}
             </span>
           ) : null}
         </div>
 
         <button
           onClick={handleWishlist}
-          aria-label="Toggle wishlist"
+          aria-label={t("product.toggleWishlist")}
           aria-pressed={isWishlisted}
           className="press absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-cream/90 text-ink opacity-100 backdrop-blur transition-opacity duration-200 hover:bg-cream sm:opacity-0 sm:group-hover:opacity-100"
         >

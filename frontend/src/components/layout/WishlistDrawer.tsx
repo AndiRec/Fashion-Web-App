@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useUiStore } from "@/store/ui";
 import { useRemoveWishlistItem, useWishlist } from "@/hooks/useWishlist";
 import { useToastStore } from "@/store/toast";
@@ -7,6 +8,7 @@ import { PriceTag } from "@/components/product/PriceTag";
 import { TrashIcon, XIcon } from "@/components/icons";
 
 export function WishlistDrawer() {
+  const { t } = useTranslation();
   const { wishlistOpen, closeWishlist } = useUiStore();
   const { data: wishlist, isLoading } = useWishlist();
   const removeItem = useRemoveWishlistItem();
@@ -21,17 +23,17 @@ export function WishlistDrawer() {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-5">
-          <h2 className="font-display text-xl">Wishlist</h2>
-          <button onClick={closeWishlist} aria-label="Close wishlist" className="press">
+          <h2 className="font-display text-xl">{t("wishlist.drawerTitle")}</h2>
+          <button onClick={closeWishlist} aria-label={t("wishlist.closeDrawer")} className="press">
             <XIcon />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {isLoading ? (
-            <p className="text-sm text-ink-soft">Loading…</p>
+            <p className="text-sm text-ink-soft">{t("wishlist.loading")}</p>
           ) : !wishlist || wishlist.length === 0 ? (
-            <p className="py-12 text-center text-sm text-ink-soft">No favorites yet.</p>
+            <p className="py-12 text-center text-sm text-ink-soft">{t("wishlist.drawerEmpty")}</p>
           ) : (
             <ul className="space-y-6">
               {wishlist.map((item) => (
@@ -48,7 +50,7 @@ export function WishlistDrawer() {
                         onClick={() =>
                           removeItem.mutate(item.id, { onError: (err) => push(getErrorMessage(err), "error") })
                         }
-                        aria-label="Remove item"
+                        aria-label={t("wishlist.removeItem")}
                         className="press text-ink-soft hover:text-rust"
                       >
                         <TrashIcon width={16} height={16} />

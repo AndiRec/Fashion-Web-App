@@ -1,8 +1,10 @@
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 import { useToastStore } from "@/store/toast";
 import { AlertIcon, CheckIcon, XIcon } from "@/components/icons";
 
 export function Toaster() {
+  const { t } = useTranslation();
   const toasts = useToastStore((s) => s.toasts);
   const dismiss = useToastStore((s) => s.dismiss);
 
@@ -22,7 +24,7 @@ export function Toaster() {
             <AlertIcon width={16} height={16} className="flex-shrink-0" />
           )}
           <span className="flex-1">{toast.message}</span>
-          <button onClick={() => dismiss(toast.id)} aria-label="Dismiss" className="flex-shrink-0 opacity-70 hover:opacity-100">
+          <button onClick={() => dismiss(toast.id)} aria-label={t("common.dismiss")} className="flex-shrink-0 opacity-70 hover:opacity-100">
             <XIcon width={14} height={14} />
           </button>
         </div>

@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useCancelOrder, useOrder } from "@/hooks/useOrders";
 import { useToastStore } from "@/store/toast";
 import { getErrorMessage } from "@/lib/api";
@@ -10,20 +11,21 @@ import { BackButton } from "@/components/ui/BackButton";
 import { formatDate, formatPrice } from "@/lib/format";
 
 export function OrderDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data: order, isLoading } = useOrder(id);
   const cancelOrder = useCancelOrder();
   const push = useToastStore((s) => s.push);
 
   if (isLoading) return <Spinner className="py-32" />;
-  if (!order) return <div className="container-boutique py-32 text-center text-ink-soft">Order not found.</div>;
+  if (!order) return <div className="container-boutique py-32 text-center text-ink-soft">{t("account.orderDetail.notFound")}</div>;
 
   return (
     <AccountLayout>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <BackButton fallback="/account/orders" label="Back to Orders" />
-          <h2 className="mt-2 font-display text-2xl">Order #{order.id}</h2>
+          <BackButton fallback="/account/orders" label={t("account.orderDetail.backToOrders")} />
+          <h2 className="mt-2 font-display text-2xl">{t("account.orderDetail.orderNumber", { id: order.id })}</h2>
           <p className="text-xs text-ink-soft">{formatDate(order.created_at)}</p>
         </div>
         <OrderStatusBadge status={order.status} />
@@ -40,9 +42,7 @@ export function OrderDetail() {
             <div className="flex flex-1 items-center justify-between">
               <div>
                 <p className="text-sm text-ink">{item.product.name}</p>
-                <p className="text-xs text-ink-soft">
-                  Size {item.size} · Qty {item.quantity}
-                </p>
+                <p className="text-xs text-ink-soft">{t("account.orderDetail.size", { size: item.size, quantity: item.quantity })}</p>
               </div>
               <span className="text-sm text-ink">{formatPrice(item.unit_price * item.quantity)}</span>
             </div>
@@ -52,7 +52,7 @@ export function OrderDetail() {
 
       <div className="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2">
         <div>
-          <h3 className="eyebrow mb-2">Shipping Address</h3>
+          <h3 className="eyebrow mb-2">{t("account.orderDetail.shippingAddress")}</h3>
           {order.address ? (
             <p className="text-sm text-ink-soft">
               {order.address.street_address}
@@ -66,7 +66,7 @@ export function OrderDetail() {
           )}
         </div>
         <div>
-          <h3 className="eyebrow mb-2">Total</h3>
+          <h3 className="eyebrow mb-2">{t("account.orderDetail.total")}</h3>
           <p className="text-lg text-ink">{formatPrice(order.total_price)}</p>
         </div>
       </div>
@@ -76,13 +76,13 @@ export function OrderDetail() {
           variant="outline"
           onClick={() =>
             cancelOrder.mutate(order.id, {
-              onSuccess: () => push("Order canceled."),
+              onSuccess: () => push(t("account.orderDetail.orderCanceled")),
               onError: (err) => push(getErrorMessage(err), "error"),
             })
           }
           loading={cancelOrder.isPending}
         >
-          Cancel Order
+          {t("account.orderDetail.cancelOrder")}
         </Button>
       ) : null}
     </AccountLayout>

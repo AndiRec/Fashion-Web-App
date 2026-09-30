@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAddresses, useCreateAddress, useDeleteAddress, useUpdateAddress } from "@/hooks/useAddresses";
 import { useToastStore } from "@/store/toast";
 import { getErrorMessage } from "@/lib/api";
@@ -12,6 +13,7 @@ import { TrashIcon } from "@/components/icons";
 const emptyForm = { street_address: "", city: "", postal_code: "", country: "" };
 
 export function Addresses() {
+  const { t } = useTranslation();
   const { data: addresses, isLoading } = useAddresses();
   const createAddress = useCreateAddress();
   const updateAddress = useUpdateAddress();
@@ -31,7 +33,7 @@ export function Addresses() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const onSuccess = () => {
-      push(editingId ? "Address updated." : "Address added.");
+      push(editingId ? t("account.addresses.addressUpdated") : t("account.addresses.addressAdded"));
       setShowForm(false);
       setEditingId(null);
       setForm(emptyForm);
@@ -52,7 +54,7 @@ export function Addresses() {
       ) : (
         <div className="space-y-8">
           {!addresses || addresses.length === 0 ? (
-            !showForm && <EmptyState title="No saved addresses" description="Add an address to speed up checkout." />
+            !showForm && <EmptyState title={t("account.addresses.emptyTitle")} description={t("account.addresses.emptyDescription")} />
           ) : (
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {addresses.map((address) => (
@@ -64,7 +66,7 @@ export function Addresses() {
                   <p className="text-ink-soft">{address.country}</p>
                   <div className="mt-3 flex gap-4">
                     <button onClick={() => startEdit(address)} className="link-underline text-xs text-ink-soft">
-                      Edit
+                      {t("account.addresses.edit")}
                     </button>
                     <button
                       onClick={() =>
@@ -72,7 +74,7 @@ export function Addresses() {
                       }
                       className="flex items-center gap-1 text-xs text-ink-soft hover:text-rust"
                     >
-                      <TrashIcon width={12} height={12} /> Delete
+                      <TrashIcon width={12} height={12} /> {t("account.addresses.delete")}
                     </button>
                   </div>
                 </li>
@@ -84,23 +86,23 @@ export function Addresses() {
             <form onSubmit={handleSubmit} className="grid max-w-lg grid-cols-1 gap-4 border border-line p-6 sm:grid-cols-2">
               <Input
                 id="street_address"
-                label="Street Address"
+                label={t("account.addresses.streetAddress")}
                 required
                 value={form.street_address}
                 onChange={(e) => setForm({ ...form, street_address: e.target.value })}
                 className="sm:col-span-2"
               />
-              <Input id="city" label="City" required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+              <Input id="city" label={t("account.addresses.city")} required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
               <Input
                 id="postal_code"
-                label="Postal Code"
+                label={t("account.addresses.postalCode")}
                 required
                 value={form.postal_code}
                 onChange={(e) => setForm({ ...form, postal_code: e.target.value })}
               />
               <Input
                 id="country"
-                label="Country"
+                label={t("account.addresses.country")}
                 required
                 value={form.country}
                 onChange={(e) => setForm({ ...form, country: e.target.value })}
@@ -108,7 +110,7 @@ export function Addresses() {
               />
               <div className="flex gap-3 sm:col-span-2">
                 <Button type="submit" loading={createAddress.isPending || updateAddress.isPending}>
-                  {editingId ? "Update Address" : "Save Address"}
+                  {editingId ? t("account.addresses.updateAddress") : t("account.addresses.saveAddress")}
                 </Button>
                 <Button
                   type="button"
@@ -119,13 +121,13 @@ export function Addresses() {
                     setForm(emptyForm);
                   }}
                 >
-                  Cancel
+                  {t("account.addresses.cancel")}
                 </Button>
               </div>
             </form>
           ) : (
             <Button variant="outline" onClick={() => setShowForm(true)}>
-              Add New Address
+              {t("account.addresses.addNewAddress")}
             </Button>
           )}
         </div>

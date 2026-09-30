@@ -1,10 +1,12 @@
+import { useTranslation } from "react-i18next";
 import { ProductCard } from "@/components/product/ProductCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { Product } from "@/lib/types";
 
 export function ProductGrid({ products }: { products: Product[] }) {
+  const { t } = useTranslation();
   if (products.length === 0) {
-    return <EmptyState title="No products found" description="Try adjusting your filters." />;
+    return <EmptyState title={t("shop.noProductsFound")} description={t("shop.adjustFilters")} />;
   }
 
   return (
