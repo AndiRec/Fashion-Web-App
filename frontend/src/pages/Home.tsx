@@ -12,20 +12,16 @@ export function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative flex h-[85vh] min-h-[560px] items-end overflow-hidden bg-mist">
-        {/* Blurred, scaled-up copy of the same photo fills the frame on wide
-            screens, where the portrait source can't cover full width without
-            cropping most of it away — the real photo below stays uncropped. */}
-        <img
-          src="/images/aria2.jpeg"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-80 blur-2xl brightness-75"
-        />
+      <section className="relative flex h-[85vh] min-h-[560px] items-end overflow-hidden bg-mist lg:h-[100vh] lg:min-h-[720px]">
+        {/* The source photo is portrait-oriented; a taller box on wide
+            screens needs far less crop to cover full-bleed than a short,
+            wide one would, so this fills edge-to-edge without zooming in
+            as hard. */}
         <img
           src="/images/aria2.jpeg"
           alt={t("home.boutiqueInterior")}
-          className="absolute inset-0 h-full w-full object-contain"
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: "50% 15%" }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 via-45% to-transparent" />
         <div className="container-boutique relative min-w-0 pb-16 text-cream [text-shadow:0_2px_16px_rgb(0_0_0_/_35%)]">
