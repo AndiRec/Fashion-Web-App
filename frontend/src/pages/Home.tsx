@@ -79,7 +79,7 @@ export function Home() {
       {/* Editorial split */}
       <section className="grid grid-cols-1 lg:grid-cols-2">
         <div className="aspect-[4/5] lg:aspect-auto">
-          <img src="/images/lookbook-blazer-blue.jpg" alt={t("home.boutiqueImage")} className="h-full w-full object-cover" />
+          <img src="/images/aria2.jpeg" alt={t("home.boutiqueImage")} className="h-full w-full object-cover object-[50%_18%]" />
         </div>
         <div className="flex items-center bg-taupe/15 px-8 py-16 lg:px-16">
           <div className="max-w-md">
