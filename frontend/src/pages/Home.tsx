@@ -13,14 +13,22 @@ export function Home() {
     <div>
       {/* Hero */}
       <section className="relative flex h-[85vh] min-h-[560px] items-end overflow-hidden bg-mist">
+        {/* Blurred, scaled-up copy of the same photo fills the frame on wide
+            screens, where the portrait source can't cover full width without
+            cropping most of it away — the real photo below stays uncropped. */}
+        <img
+          src="/images/aria2.jpeg"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-80 blur-2xl brightness-75"
+        />
         <img
           src="/images/aria2.jpeg"
           alt={t("home.boutiqueInterior")}
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: "50% 20%" }}
+          className="absolute inset-0 h-full w-full object-contain"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 via-45% to-transparent" />
-        <div className="container-boutique relative pb-16 text-cream [text-shadow:0_2px_16px_rgb(0_0_0_/_35%)]">
+        <div className="container-boutique relative min-w-0 pb-16 text-cream [text-shadow:0_2px_16px_rgb(0_0_0_/_35%)]">
           <p className="eyebrow mb-3 text-cream/90">{t("home.heroLocation")}</p>
           <h1 className="max-w-xl font-display text-4xl leading-tight sm:text-5xl md:text-6xl">
             {t("home.heroTitle")}
