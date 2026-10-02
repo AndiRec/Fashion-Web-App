@@ -12,16 +12,11 @@ export function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative flex h-[85vh] min-h-[560px] items-end overflow-hidden bg-mist lg:h-[100vh] lg:min-h-[720px]">
-        {/* The source photo is portrait-oriented; a taller box on wide
-            screens needs far less crop to cover full-bleed than a short,
-            wide one would, so this fills edge-to-edge without zooming in
-            as hard. */}
+      <section className="relative flex h-[85vh] min-h-[560px] items-end overflow-hidden bg-mist">
         <img
-          src="/images/aria2.jpeg"
+          src="/images/arianew.png"
           alt={t("home.boutiqueInterior")}
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: "50% 15%" }}
+          className="absolute inset-0 h-full w-full object-cover object-[25%_30%] lg:object-[50%_28%]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 via-45% to-transparent" />
         <div className="container-boutique relative min-w-0 pb-16 text-cream [text-shadow:0_2px_16px_rgb(0_0_0_/_35%)]">
