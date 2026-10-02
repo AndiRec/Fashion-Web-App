@@ -25,6 +25,7 @@ export function Home() {
           <h1 className="max-w-xl font-display text-4xl leading-tight sm:text-5xl md:text-6xl">
             {t("home.heroTitle")}
           </h1>
+          <p className="mt-3 text-xs uppercase tracking-[0.2em] text-cream/80">{t("home.heroAttribution")}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
             <Link to="/shop" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto">

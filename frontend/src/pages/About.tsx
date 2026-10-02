@@ -21,7 +21,10 @@ export function About() {
           <p className="eyebrow mb-3">{t("about.whoWeAre")}</p>
           <h2 className="mb-5 text-3xl">{t("about.heading")}</h2>
           <p className="mb-4 text-sm leading-relaxed text-ink-soft">{t("about.body1")}</p>
-          <p className="mb-8 text-sm leading-relaxed text-ink-soft">{t("about.body2")}</p>
+          <p className="mb-4 text-sm leading-relaxed text-ink-soft">{t("about.body2")}</p>
+          <p className="mb-4 text-sm leading-relaxed text-ink-soft">{t("about.body3")}</p>
+          <p className="mb-4 text-sm leading-relaxed text-ink-soft">{t("about.body4")}</p>
+          <p className="mb-8 text-sm leading-relaxed text-ink-soft">{t("about.body5")}</p>
           <Link to="/shop">
             <Button variant="outline">{t("about.shopCollection")}</Button>
           </Link>

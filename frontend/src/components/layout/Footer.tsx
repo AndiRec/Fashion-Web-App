@@ -13,7 +13,14 @@ export function Footer() {
           <Link to="/">
             <img src="/images/ariafashion.png" alt="Aria Fashion" className="h-10 w-auto brightness-0 invert" />
           </Link>
-          <p className="mt-3 max-w-xs text-sm text-cream/75">{t("footer.tagline")}</p>
+          <div className="mt-3 flex flex-col gap-1.5 text-sm text-cream/75">
+            <a href="https://instagram.com/ariaa.fashion" target="_blank" rel="noopener noreferrer" className="hover:text-cream">
+              {t("footer.instagramHandle")}
+            </a>
+            <a href="mailto:ariaa.fashionn@hotmail.com" className="hover:text-cream">
+              {t("footer.emailAddress")}
+            </a>
+          </div>
         </div>
 
         <div>
@@ -42,13 +49,22 @@ export function Footer() {
           </ul>
         </div>
 
-        <div>
+        <div className="col-span-2 sm:col-span-1">
           <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-cream/60 mb-4">{t("footer.visitUs")}</h4>
-          <ul className="space-y-2 text-sm text-cream/75">
+          <ul className="mb-4 space-y-2 text-sm text-cream/75">
             <li>{t("footer.location")}</li>
+            <li>{t("footer.locationMall")}</li>
             <li>{t("footer.hours")}</li>
-            <li>hello@ariafashion.mk</li>
           </ul>
+          <div className="h-32 w-full max-w-xs overflow-hidden border border-cream/20">
+            <iframe
+              src="https://www.google.com/maps?q=Dua+Mall,+Struga,+North+Macedonia&output=embed"
+              className="h-full w-full"
+              style={{ border: 0 }}
+              loading="lazy"
+              title={t("footer.mapTitle")}
+            />
+          </div>
         </div>
       </div>
 
